@@ -1,6 +1,7 @@
 [
   {
     "matchId": 1,
+    "scorerId": "scorer-001",
     "status": "live",
     "date": "2026-08-23",
     "scheduledStartTime": "14:00:00",
@@ -61,6 +62,7 @@
   },
   {
     "matchId": 2,
+    "scorerId": "scorer-001",
     "status": "scheduled",
     "date": "2026-08-24",
     "scheduledStartTime": "19:30:00",
@@ -87,6 +89,7 @@
   },
   {
     "matchId": 3,
+    "scorerId": "scorer-001",
     "status": "completed",
     "date": "2026-08-22",
     "scheduledStartTime": "19:30:00",
@@ -141,6 +144,89 @@
     ],
     "commentary": [
       { "over": 19.6, "text": "Bumrah to Siraj, OUT! Clean bowled! Mumbai Indians win the match.", "runs": 0, "isWicket": true }
+    ]
+  },
+  {
+    "matchId": 4,
+    "scorerId": "scorer-001",
+    "status": "completed",
+    "date": "2026-08-24",
+    "scheduledStartTime": "19:30:00",
+    "scheduledEndTime": "23:30:00",
+    "ground": "Arun Jaitley Stadium, Delhi",
+    "toss": { "wonBy": 105, "decision": "bat" },
+    "result": "Delhi Capitals won by 18 runs",
+    "playerOfTheMatch": 14,
+    "teams": [
+      {
+        "teamId": 105,
+        "teamName": "Delhi Capitals",
+        "players": [
+          { "playerId": 14, "playerName": "David Warner", "role": "Batsman" },
+          { "playerId": 15, "playerName": "Rishabh Pant", "role": "Wicketkeeper" },
+          { "playerId": 16, "playerName": "Axar Patel", "role": "All-Rounder" },
+          { "playerId": 17, "playerName": "Anrich Nortje", "role": "Bowler" }
+        ]
+      },
+      {
+        "teamId": 106,
+        "teamName": "Sunrisers Hyderabad",
+        "players": [
+          { "playerId": 18, "playerName": "Travis Head", "role": "Batsman" },
+          { "playerId": 19, "playerName": "Heinrich Klaasen", "role": "Wicketkeeper" },
+          { "playerId": 20, "playerName": "Pat Cummins", "role": "All-Rounder" },
+          { "playerId": 21, "playerName": "Bhuvneshwar Kumar", "role": "Bowler" }
+        ]
+      }
+    ],
+    "innings": [
+      {
+        "teamId": 105,
+        "score": 198,
+        "wickets": 6,
+        "overs": 20.0,
+        "batting": [
+          { "playerId": 14, "runs": 92, "balls": 54, "fours": 9, "sixes": 5, "strikeRate": 170.37, "dismissal": "c Klaasen b Cummins", "out": true },
+          { "playerId": 15, "runs": 48, "balls": 29, "fours": 4, "sixes": 3, "strikeRate": 165.51, "dismissal": "b Bhuvneshwar", "out": true },
+          { "playerId": 16, "runs": 34, "balls": 22, "fours": 3, "sixes": 1, "strikeRate": 154.54, "dismissal": "not out", "out": false },
+          { "playerId": 17, "runs": 12, "balls": 8, "fours": 1, "sixes": 0, "strikeRate": 150.0, "dismissal": "not out", "out": false }
+        ],
+        "bowling": [
+          { "playerId": 20, "overs": 4.0, "maidens": 0, "runs": 42, "wickets": 2, "economy": 10.5, "wides": 2, "noBalls": 0 },
+          { "playerId": 21, "overs": 4.0, "maidens": 0, "runs": 38, "wickets": 2, "economy": 9.5, "wides": 1, "noBalls": 0 }
+        ],
+        "extras": { "byes": 2, "legByes": 3, "wides": 4, "noBalls": 3, "total": 12 },
+        "fallOfWickets": [
+          { "score": 112, "wicket": 1, "overs": 11.2, "playerId": 15 },
+          { "score": 164, "wicket": 2, "overs": 17.1, "playerId": 14 }
+        ]
+      },
+      {
+        "teamId": 106,
+        "score": 180,
+        "wickets": 8,
+        "overs": 20.0,
+        "batting": [
+          { "playerId": 18, "runs": 74, "balls": 48, "fours": 7, "sixes": 4, "strikeRate": 154.16, "dismissal": "c Warner b Axar", "out": true },
+          { "playerId": 19, "runs": 55, "balls": 32, "fours": 5, "sixes": 3, "strikeRate": 171.87, "dismissal": "b Nortje", "out": true },
+          { "playerId": 20, "runs": 28, "balls": 20, "fours": 2, "sixes": 1, "strikeRate": 140.0, "dismissal": "run out", "out": true },
+          { "playerId": 21, "runs": 9, "balls": 8, "fours": 1, "sixes": 0, "strikeRate": 112.5, "dismissal": "not out", "out": false }
+        ],
+        "bowling": [
+          { "playerId": 17, "overs": 4.0, "maidens": 1, "runs": 28, "wickets": 3, "economy": 7.0, "wides": 0, "noBalls": 0 },
+          { "playerId": 16, "overs": 4.0, "maidens": 0, "runs": 34, "wickets": 2, "economy": 8.5, "wides": 1, "noBalls": 0 }
+        ],
+        "extras": { "byes": 1, "legByes": 4, "wides": 5, "noBalls": 2, "total": 14 },
+        "fallOfWickets": [
+          { "score": 98, "wicket": 1, "overs": 10.4, "playerId": 18 },
+          { "score": 148, "wicket": 2, "overs": 16.2, "playerId": 19 },
+          { "score": 172, "wicket": 3, "overs": 19.1, "playerId": 20 }
+        ]
+      }
+    ],
+    "commentary": [
+      { "over": 20.0, "text": "Nortje to Bhuvneshwar, dot ball! Delhi Capitals win by 18 runs!", "runs": 0, "isWicket": false },
+      { "over": 19.1, "text": "Axar to Cummins, OUT! Run out! Direct hit from backward point!", "runs": 0, "isWicket": true }
     ]
   }
 ]

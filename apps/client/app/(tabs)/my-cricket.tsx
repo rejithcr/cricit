@@ -4,9 +4,11 @@ import { colors, typography } from '../../src/theme';
 import { AlertCircle } from 'lucide-react-native';
 import { MatchCard } from '../../src/components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../src/contexts/AuthContext';
 
 export default function MyCricketScreen() {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   
   const { data: matches, error: matchesError, isLoading: isMatchesLoading } = useQuery({
     queryKey: ['matches'],
@@ -35,6 +37,7 @@ export default function MyCricketScreen() {
             <MatchCard 
               key={match.matchId} 
               match={match} 
+              currentUserId={user?.id}
             />
           ))}
         </View>

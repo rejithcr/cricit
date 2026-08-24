@@ -86,6 +86,23 @@ function RootLayoutNav() {
           headerShadowVisible: true,
         }}
       />
+      <Stack.Screen
+        name="match/[id]/score"
+        options={{
+          headerShown: true,
+          headerBackTitle: 'Back',
+          headerTintColor: colors.whatsappGreen,
+          headerStyle: {
+            backgroundColor: colors.surfaceContainerLowest,
+          },
+          headerTitleStyle: {
+            color: colors.onSurface,
+            fontSize: 16,
+            fontWeight: '600',
+          },
+          headerShadowVisible: true,
+        }}
+      />
     </Stack>
   );
 }

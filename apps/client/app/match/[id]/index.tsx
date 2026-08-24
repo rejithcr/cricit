@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { colors, typography } from '../../src/theme';
+import { colors, typography } from '../../../src/theme';
 import { AlertCircle, ChevronDown, ChevronUp } from 'lucide-react-native';
 
 const BatterRow = ({ batter, playerName, isLast }: any) => (
@@ -125,7 +125,7 @@ export default function ScorecardScreen() {
               activeOpacity={0.7}
             >
               <View>
-                <Text style={styles.inningTitle}>{teamName} Innings</Text>
+                <Text style={styles.inningTitle}>{teamName}</Text>
                 <Text style={styles.inningScore}>
                   {inning.score}/{inning.wickets} <Text style={styles.inningOvers}>({inning.overs} Ov)</Text>
                 </Text>
