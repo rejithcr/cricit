@@ -1,0 +1,22 @@
+{
+  "name": "cricit-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@11.4.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:infra": "docker-compose up -d",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:migrate": "npm run db:migrate --workspace=apps/api",
+    "db:studio": "npm run db:studio --workspace=apps/api"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  }
+}
