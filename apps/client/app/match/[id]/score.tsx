@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  Modal,
 } from 'react-native';
+import { Picker as SelectPicker } from '@react-native-picker/picker';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { colors, typography } from '../../../src/theme';
@@ -149,11 +151,33 @@ function buildInitialState(match: any): ScoringState | null {
 
 // ─── Delivery reducer ─────────────────────────────────────────────────────────
 
-function applyDelivery(prev: ScoringState, outcome: string): ScoringState {
+function applyDelivery(prev: ScoringState, event: any): ScoringState {
+  const outcome = typeof event === 'string' ? event : (
+    event.type === 'wicket' ? 'W' :
+    event.type === 'wide' ? 'Wd' :
+    event.type === 'noBall' ? 'Nb' :
+    String(event.runs)
+  );
+
   const isLegal = LEGAL_OUTCOMES.has(outcome);
   const isExtra = EXTRA_OUTCOMES.has(outcome);
   const isWicket = outcome === 'W';
-  const runs = runsFromOutcome(outcome);
+  
+  // Total runs added to score
+  let totalRuns = 0;
+  if (typeof event === 'object') {
+    totalRuns = event.runs + (isExtra ? 1 : 0);
+  } else {
+    totalRuns = runsFromOutcome(outcome);
+  }
+
+  // Batter runs off the bat
+  let batterRuns = 0;
+  if (typeof event === 'object') {
+    batterRuns = (event.type === 'legal' || event.type === 'wicket') ? event.runs : 0;
+  } else {
+    batterRuns = (isExtra || isWicket) ? 0 : runsFromOutcome(outcome);
+  }
 
   const newDeliveries = [...prev.currentOverDeliveries, outcome];
   const newBowlerBalls = isLegal ? prev.bowler.ballsThisOver + 1 : prev.bowler.ballsThisOver;
@@ -161,17 +185,32 @@ function applyDelivery(prev: ScoringState, outcome: string): ScoringState {
 
   const updatedStriker: BatterState = {
     ...prev.striker,
-    runs: prev.striker.runs + (isExtra || isWicket ? 0 : runs),
+    runs: prev.striker.runs + batterRuns,
     balls: isLegal ? prev.striker.balls + 1 : prev.striker.balls,
   };
 
-  const shouldRotate = overComplete || (!isExtra && !isWicket && runs % 2 === 1);
-  const nextStriker = shouldRotate ? prev.nonStriker : updatedStriker;
-  const nextNonStriker = shouldRotate ? updatedStriker : prev.nonStriker;
+  // XOR: rotate if exactly one of (odd runs, over-complete) is true
+  const runBasedRotation = !isWicket && !isExtra && (totalRuns % 2 === 1);
+  const shouldRotate = runBasedRotation !== overComplete; // XOR
+
+  let nextStriker = shouldRotate ? prev.nonStriker : updatedStriker;
+  let nextNonStriker = shouldRotate ? updatedStriker : prev.nonStriker;
+
+  if (isWicket) {
+    // New batter placeholder comes on strike (or non-strike if they crossed)
+    const newBatterPlaceholder: BatterState = { playerId: -1, name: 'New Batter', runs: 0, balls: 0 };
+    // The player who was NOT out keeps their position; new batter takes the dismissed batter's end
+    if (shouldRotate) {
+      // Striker scored odd runs then got run-out — non-striker is now at striker's end
+      nextNonStriker = newBatterPlaceholder;
+    } else {
+      nextStriker = newBatterPlaceholder;
+    }
+  }
 
   return {
     ...prev,
-    score: prev.score + runs,
+    score: prev.score + totalRuns,
     wickets: isWicket ? prev.wickets + 1 : prev.wickets,
     totalLegalBalls: isLegal ? prev.totalLegalBalls + 1 : prev.totalLegalBalls,
     currentOverDeliveries: overComplete ? [] : newDeliveries,
@@ -179,7 +218,7 @@ function applyDelivery(prev: ScoringState, outcome: string): ScoringState {
     nonStriker: nextNonStriker,
     bowler: {
       ...prev.bowler,
-      runsGiven: prev.bowler.runsGiven + runs,
+      runsGiven: prev.bowler.runsGiven + totalRuns,
       wicketsTaken: isWicket ? prev.bowler.wicketsTaken + 1 : prev.bowler.wicketsTaken,
       ballsThisOver: overComplete ? 0 : newBowlerBalls,
       totalLegalBalls: isLegal ? prev.bowler.totalLegalBalls + 1 : prev.bowler.totalLegalBalls,
@@ -191,13 +230,31 @@ function applyDelivery(prev: ScoringState, outcome: string): ScoringState {
 
 export default function ScoringScreen() {
   const { id } = useLocalSearchParams();
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.5:3001';
   const [scoringState, setScoringState] = useState<ScoringState | null>(null);
   const [history, setHistory] = useState<ScoringState[]>([]);
+  
+  const [wicketModalVisible, setWicketModalVisible] = useState(false);
+  const [extraModalVisible, setExtraModalVisible] = useState(false);
+  const [pendingExtraType, setPendingExtraType] = useState('');
+  const [newBatterModalVisible, setNewBatterModalVisible] = useState(false);
+  const [newBowlerModalVisible, setNewBowlerModalVisible] = useState(false);
+  // Pending event: we collect the wicket/over-complete state and wait for player selection
+  const [pendingWicketEvent, setPendingWicketEvent] = useState<any>(null);
+  const [selectedNewBatterId, setSelectedNewBatterId] = useState<number>(0);
+  const [selectedNewBowlerId, setSelectedNewBowlerId] = useState<number>(0);
+  
+  const [wicketDetails, setWicketDetails] = useState({
+    type: 'Caught',
+    runs: 0,
+    fielderId: 0,
+    playerOutId: 0,
+  });
+  const [extraRuns, setExtraRuns] = useState(0);
 
   const { data: match, isLoading } = useQuery({
     queryKey: ['match', id],
     queryFn: async () => {
-      const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.5:3001';
       const res = await fetch(`${apiUrl}/matches/${id}`);
       if (!res.ok) throw new Error('Failed to load match');
       return res.json();
@@ -210,22 +267,131 @@ export default function ScoringScreen() {
     }
   }, [match]);
 
+  const submitEvent = async (action: string, data: any = null) => {
+    try {
+      await fetch(`${apiUrl}/matches/${id}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, data, scorerId: 'scorer-001' }) 
+      });
+    } catch (err) {
+      console.error('Failed to submit event', err);
+      if (action === 'ball') {
+        // Rollback
+        setScoringState(history[history.length - 1]);
+        setHistory(prev => prev.slice(0, -1));
+      }
+    }
+  };
+
+  const processDelivery = (eventData: any) => {
+    setScoringState(prev => {
+      if (!prev) return prev;
+      setHistory(h => [...h, prev]);
+      const next = applyDelivery(prev, eventData);
+      
+      // After applying, check if the over just completed — if so prompt new bowler
+      const isLegalDelivery = eventData.type === 'legal' || eventData.type === 'wicket'
+        || eventData.type === 'bye' || eventData.type === 'legBye';
+      const newBowlerBalls = isLegalDelivery ? prev.bowler.ballsThisOver + 1 : prev.bowler.ballsThisOver;
+      if (newBowlerBalls >= 6) {
+        setNewBowlerModalVisible(true);
+      }
+      
+      return next;
+    });
+    submitEvent('ball', eventData);
+  };
+
   const handleBall = useCallback(
-    (value: string) => {
+    async (value: string) => {
       if (value === 'UNDO') {
         if (history.length === 0) return;
         setScoringState(history[history.length - 1]);
         setHistory(prev => prev.slice(0, -1));
+        submitEvent('undo');
         return;
       }
-      setScoringState(prev => {
-        if (!prev) return prev;
-        setHistory(h => [...h, prev]);
-        return applyDelivery(prev, value);
+      
+      if (value === 'W') {
+        setWicketDetails(prev => ({ ...prev, playerOutId: scoringState?.striker.playerId || 0 }));
+        setWicketModalVisible(true);
+        return;
+      }
+      
+      if (value === 'Wd' || value === 'Nb') {
+        setPendingExtraType(value);
+        setExtraRuns(0);
+        setExtraModalVisible(true);
+        return;
+      }
+
+      // Legal simple runs — no modals needed
+      processDelivery({
+        type: 'legal',
+        runs: parseInt(value, 10) || 0
       });
     },
-    [history],
+    [history, id, apiUrl, scoringState],
   );
+
+  const handleWicketSubmit = () => {
+    setWicketModalVisible(false);
+    const eventData = {
+      type: 'wicket',
+      runs: wicketDetails.runs,
+      wicket: {
+        dismissalType: wicketDetails.type,
+        playerOutId: wicketDetails.playerOutId,
+        fielderId: wicketDetails.fielderId || undefined
+      }
+    };
+    // Save pending event then ask for new batter
+    setPendingWicketEvent(eventData);
+    setSelectedNewBatterId(0);
+    setNewBatterModalVisible(true);
+  };
+
+  const handleNewBatterSubmit = () => {
+    setNewBatterModalVisible(false);
+    if (!pendingWicketEvent) return;
+    const finalEvent = selectedNewBatterId
+      ? { ...pendingWicketEvent, wicket: { ...pendingWicketEvent.wicket, newBatterId: selectedNewBatterId } }
+      : pendingWicketEvent;
+    processDelivery(finalEvent);
+    setPendingWicketEvent(null);
+  };
+
+  const handleNewBowlerSubmit = () => {
+    setNewBowlerModalVisible(false);
+    if (!selectedNewBowlerId || !scoringState) return;
+    // Get bowler name from match data
+    const innings = match?.innings?.[match.innings.length - 1];
+    const bowlingTeam = match?.teams?.find((t: any) => t.teamId !== innings?.teamId);
+    const playerData = bowlingTeam?.players?.find((p: any) => p.playerId === selectedNewBowlerId);
+    // Update local scoring state immediately
+    setScoringState(prev => prev ? {
+      ...prev,
+      bowler: {
+        playerId: selectedNewBowlerId,
+        name: playerData?.playerName ?? 'New Bowler',
+        runsGiven: 0,
+        wicketsTaken: 0,
+        ballsThisOver: 0,
+        totalLegalBalls: 0,
+      }
+    } : prev);
+    // Broadcast to all viewers via the event pipeline
+    submitEvent('new_bowler', { bowlerId: selectedNewBowlerId });
+  };
+
+  const handleExtraSubmit = () => {
+    setExtraModalVisible(false);
+    processDelivery({
+      type: pendingExtraType === 'Wd' ? 'wide' : 'noBall',
+      runs: extraRuns
+    });
+  };
 
   if (isLoading || !scoringState) {
     return (
@@ -358,6 +524,179 @@ export default function ScoringScreen() {
           </View>
         ))}
       </View>
+      
+      {/* Wicket Modal */}
+      <Modal visible={wicketModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Wicket Details</Text>
+            
+            <Text style={styles.modalLabel}>Dismissal Type</Text>
+            <View style={styles.pickerContainer}>
+              <SelectPicker
+                selectedValue={wicketDetails.type}
+                onValueChange={(val: any) => setWicketDetails(p => ({...p, type: val}))}
+              >
+                <SelectPicker.Item label="Caught" value="Caught" />
+                <SelectPicker.Item label="Bowled" value="Bowled" />
+                <SelectPicker.Item label="Run Out" value="Run Out" />
+                <SelectPicker.Item label="LBW" value="LBW" />
+                <SelectPicker.Item label="Stumped" value="Stumped" />
+              </SelectPicker>
+            </View>
+
+            {wicketDetails.type === 'Run Out' && (
+              <>
+                <Text style={styles.modalLabel}>Runs Completed</Text>
+                <View style={styles.runsRow}>
+                  {[0, 1, 2, 3].map(r => (
+                    <TouchableOpacity 
+                      key={r} 
+                      style={[styles.runsBtn, wicketDetails.runs === r && styles.runsBtnActive]}
+                      onPress={() => setWicketDetails(p => ({...p, runs: r}))}
+                    >
+                      <Text style={[styles.runsBtnText, wicketDetails.runs === r && styles.runsBtnTextActive]}>{r}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                
+                <Text style={styles.modalLabel}>Who is out?</Text>
+                <View style={styles.runsRow}>
+                  <TouchableOpacity 
+                    style={[styles.runsBtn, wicketDetails.playerOutId === striker.playerId && styles.runsBtnActive, { flex: 1 }]}
+                    onPress={() => setWicketDetails(p => ({...p, playerOutId: striker.playerId}))}
+                  >
+                    <Text style={[styles.runsBtnText, wicketDetails.playerOutId === striker.playerId && styles.runsBtnTextActive]}>{striker.name}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.runsBtn, wicketDetails.playerOutId === nonStriker.playerId && styles.runsBtnActive, { flex: 1 }]}
+                    onPress={() => setWicketDetails(p => ({...p, playerOutId: nonStriker.playerId}))}
+                  >
+                    <Text style={[styles.runsBtnText, wicketDetails.playerOutId === nonStriker.playerId && styles.runsBtnTextActive]}>{nonStriker.name}</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setWicketModalVisible(false)}>
+                <Text style={styles.modalBtnTextDark}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalBtnSubmit} onPress={handleWicketSubmit}>
+                <Text style={styles.modalBtnTextLight}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Extra Modal */}
+      <Modal visible={extraModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{pendingExtraType === 'Wd' ? 'Wide' : 'No Ball'}</Text>
+            
+            <Text style={styles.modalLabel}>Additional Runs Run?</Text>
+            <View style={styles.runsRow}>
+              {[0, 1, 2, 3, 4].map(r => (
+                <TouchableOpacity 
+                  key={r} 
+                  style={[styles.runsBtn, extraRuns === r && styles.runsBtnActive]}
+                  onPress={() => setExtraRuns(r)}
+                >
+                  <Text style={[styles.runsBtnText, extraRuns === r && styles.runsBtnTextActive]}>{r}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setExtraModalVisible(false)}>
+                <Text style={styles.modalBtnTextDark}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalBtnSubmit} onPress={handleExtraSubmit}>
+                <Text style={styles.modalBtnTextLight}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* New Batter Modal — shown after a wicket, before delivery is submitted */}
+      <Modal visible={newBatterModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>🏏 New Batter</Text>
+            <Text style={styles.modalLabel}>Who is coming in to bat?</Text>
+            <View style={styles.pickerContainer}>
+              <SelectPicker
+                selectedValue={selectedNewBatterId}
+                onValueChange={(val: any) => setSelectedNewBatterId(Number(val))}
+              >
+                <SelectPicker.Item label="Select batter..." value={0} />
+                {(() => {
+                  const innings = match?.innings?.[match.innings.length - 1];
+                  const battingTeam = match?.teams?.find((t: any) => t.teamId === innings?.teamId);
+                  const dismissedIds = new Set(innings?.batting?.filter((b: any) => b.out).map((b: any) => b.playerId) ?? []);
+                  const currentIds = new Set([scoringState?.striker.playerId, scoringState?.nonStriker.playerId]);
+                  return battingTeam?.players
+                    ?.filter((p: any) => !dismissedIds.has(p.playerId) && !currentIds.has(p.playerId))
+                    ?.map((p: any) => <SelectPicker.Item key={p.playerId} label={p.playerName} value={p.playerId} />) ?? [];
+                })()}
+              </SelectPicker>
+            </View>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalBtnCancel} onPress={() => { setNewBatterModalVisible(false); handleNewBatterSubmit(); }}>
+                <Text style={styles.modalBtnTextDark}>Skip</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtnSubmit, !selectedNewBatterId && { opacity: 0.5 }]}
+                onPress={handleNewBatterSubmit}
+                disabled={!selectedNewBatterId}
+              >
+                <Text style={styles.modalBtnTextLight}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* New Bowler Modal — shown after an over is complete */}
+      <Modal visible={newBowlerModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>⚾ Over Complete!</Text>
+            <Text style={styles.modalLabel}>Who is bowling the next over?</Text>
+            <View style={styles.pickerContainer}>
+              <SelectPicker
+                selectedValue={selectedNewBowlerId}
+                onValueChange={(val: any) => setSelectedNewBowlerId(Number(val))}
+              >
+                <SelectPicker.Item label="Select bowler..." value={0} />
+                {(() => {
+                  const innings = match?.innings?.[match.innings.length - 1];
+                  const bowlingTeam = match?.teams?.find((t: any) => t.teamId !== innings?.teamId);
+                  return bowlingTeam?.players
+                    ?.filter((p: any) => p.playerId !== scoringState?.bowler.playerId)
+                    ?.map((p: any) => <SelectPicker.Item key={p.playerId} label={p.playerName} value={p.playerId} />) ?? [];
+                })()}
+              </SelectPicker>
+            </View>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setNewBowlerModalVisible(false)}>
+                <Text style={styles.modalBtnTextDark}>Skip</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtnSubmit, !selectedNewBowlerId && { opacity: 0.5 }]}
+                onPress={handleNewBowlerSubmit}
+                disabled={!selectedNewBowlerId}
+              >
+                <Text style={styles.modalBtnTextLight}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -573,5 +912,94 @@ const styles = StyleSheet.create({
   },
   padBtnTextDisabled: {
     color: colors.systemGray,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 36,
+    gap: 12,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.onSurface,
+    marginBottom: 4,
+  },
+  modalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.systemGray,
+    marginTop: 8,
+  },
+  pickerContainer: {
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  runsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+  runsBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceContainerLowest,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  runsBtnActive: {
+    borderColor: colors.whatsappGreen,
+    backgroundColor: '#dcfce7',
+  },
+  runsBtnText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.onSurface,
+  },
+  runsBtnTextActive: {
+    color: colors.whatsappGreen,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+  },
+  modalBtnCancel: {
+    flex: 1,
+    height: 52,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceContainerLowest,
+  },
+  modalBtnSubmit: {
+    flex: 1,
+    height: 52,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.whatsappGreen,
+  },
+  modalBtnTextDark: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.onSurface,
+  },
+  modalBtnTextLight: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
   },
 });

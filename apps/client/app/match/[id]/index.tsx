@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { io } from 'socket.io-client';
+import { applyDeliveryToMatch } from '@cricit/scoring-engine';
 import { colors, typography } from '../../../src/theme';
 import { AlertCircle, ChevronDown, ChevronUp } from 'lucide-react-native';
 
@@ -40,17 +42,52 @@ const BowlerRow = ({ bowler, playerName, isLast }: any) => (
 
 export default function ScorecardScreen() {
   const { id } = useLocalSearchParams();
+  const queryClient = useQueryClient();
   const [collapsedInnings, setCollapsedInnings] = useState<Record<number, boolean>>({});
+  const [refreshing, setRefreshing] = useState(false);
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.5:3001';
 
-  const { data: match, error, isLoading } = useQuery({
+  const { data: match, error, isLoading, refetch } = useQuery({
     queryKey: ['match', id],
     queryFn: async () => {
-      const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.5:3001';
       const res = await fetch(`${apiUrl}/matches/${id}`);
       if (!res.ok) throw new Error('API responded with ' + res.status);
       return res.json();
     }
   });
+
+  useEffect(() => {
+    if (!id) return;
+    
+    const socket = io(apiUrl);
+    
+    socket.on('connect', () => {
+      socket.emit('join_match', { matchId: id });
+    });
+
+    socket.on('MATCH_EVENT', (eventPayload: { matchId: string, action: string, data?: any }) => {
+      if (String(eventPayload.matchId) === String(id)) {
+        if (eventPayload.action === 'ball') {
+          queryClient.setQueryData(['match', id], (oldMatch: any) => {
+            if (!oldMatch) return oldMatch;
+            return applyDeliveryToMatch(oldMatch, eventPayload.data);
+          });
+        } else if (eventPayload.action === 'undo' || eventPayload.action === 'new_bowler') {
+          // Structural changes: pull fresh authoritative state from server
+          refetch();
+        }
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [id, apiUrl, queryClient]);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    refetch().finally(() => setRefreshing(false));
+  }, [refetch]);
 
   const getTeamName = (teamId: number) => {
     return match?.teams?.find((t: any) => t.teamId === teamId)?.teamName || 'Unknown Team';
@@ -82,7 +119,13 @@ export default function ScorecardScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.whatsappGreen]} />
+      }
+    >
       <Stack.Screen options={{ title: `${match.teams?.[0]?.teamName} vs ${match.teams?.[1]?.teamName}`, headerBackTitle: 'Back' }} />
 
       {/* Match Header Info */}
