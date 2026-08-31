@@ -4,3 +4,5 @@ export * from './SectionHeader';
 export * from './PlayerScoreCard';
 export * from './BowlerScoreCard';
 export * from './MatchCard';
+export * from './ConfirmationModal';
+export * from './SettingsMenu';

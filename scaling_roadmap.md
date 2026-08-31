@@ -215,3 +215,51 @@ When splitting a domain (e.g., Live Scoring) out of PostgreSQL into a new databa
 
 > [!CAUTION]
 > Data migration at scale is risky. Always implement the "Verify" step (Shadow Reads) for at least a week before switching live traffic to the new database. Ensure your backend modules are loosely coupled (e.g., `ScoringService` interface) so swapping the underlying repository implementation is clean.
+
+---
+
+## 6. Live Scoring WebSocket Architecture — Phased Strategy
+
+### The Problem
+When broadcasting live ball events to N concurrent viewers, there are two fundamental approaches with very different cost and complexity profiles.
+
+### MVP Decision (Phase 1–3): Full Scorecard Snapshot per Event
+
+Every `MATCH_EVENT` broadcast includes the **full computed scorecard state** — batting rows, bowling figures, and last 10 commentary entries. The client simply replaces its local state with the received snapshot.
+
+**Payload per event:** ~4 KB  
+**Implementation:** `buildScorecardSnapshot()` in `MatchesService` → broadcast via `ScoringGateway`  
+**Client:** Zero computation — just `queryClient.setQueryData(['match', id], snapshot)`
+
+**Why this is right for MVP:**
+- Zero sync complexity — every event is fully self-contained, so missed events, reconnects, and join-race windows are all harmless
+- No client-side scoring logic required in the viewer
+- Simpler debugging — you can read every broadcast payload and understand the full state
+- Infra cost is negligible at Phase 1–3 user scales
+
+| Viewers | Data/event | Data/match (240 events) | Monthly egress (100 matches) |
+|---|---|---|---|
+| 100 | 400 KB | 96 MB | ~$0.86 |
+| 1,000 | 4 MB | 960 MB | ~$8.64 |
+| 5,000 | 20 MB | 4.8 GB | ~$43.20 |
+
+### Phase 4 Migration: Minimal Delta Events + Client-Side Engine
+
+When concurrent viewers per match exceed ~5,000, migrate to broadcasting minimal ball events and computing scorecard updates client-side via `@cricit/scoring-engine`.
+
+**Payload per event:** ~100 bytes (40× reduction)  
+**Client:** `applyDeliveryToMatch(oldMatch, eventPayload.data)` — already built in `@cricit/scoring-engine`
+
+**Migration is an API contract change only:**
+- Backend: change broadcast payload from `{ snapshot }` to `{ action, data }`
+- Frontend viewer: un-comment the `applyDeliveryToMatch` import in `index.tsx`
+- The `@cricit/scoring-engine` package is already present and used by the scoring screen — no new code needed
+
+**Required additional work for Phase 4 reliability:**
+1. **Per-event sequence numbers** (`seq` field on every event)
+2. **Gap detection on receive** — if `event.seq !== lastSeq + 1`, request catch-up
+3. **Join catch-up** — on `join_match { lastSeq }`, server replays delta events from event log
+4. **Heartbeat** — server broadcasts `{ seq, score, wickets }` every 30s as a safety net
+
+> [!NOTE]
+> The Phase 4 client-side scoring engine approach requires a **persistent event log** (stored in PostgreSQL initially, then DynamoDB for Phase 4 high-velocity writes). This aligns naturally with the Polyglot Persistence strategy in Section 5 — live scoring events are append-only, making DynamoDB/Cassandra an ideal fit.

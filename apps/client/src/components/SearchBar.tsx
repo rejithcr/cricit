@@ -7,9 +7,10 @@ interface SearchBarProps {
   placeholder?: string;
   value?: string;
   onChangeText?: (text: string) => void;
+  autoFocus?: boolean;
 }
 
-export function SearchBar({ placeholder = "Search...", value, onChangeText }: SearchBarProps) {
+export function SearchBar({ placeholder = "Search...", value, onChangeText, autoFocus = false }: SearchBarProps) {
   return (
     <View style={styles.container}>
       <Search size={20} color={colors.systemGray} style={styles.icon} />
@@ -21,6 +22,7 @@ export function SearchBar({ placeholder = "Search...", value, onChangeText }: Se
         onChangeText={onChangeText}
         autoCapitalize="none"
         autoCorrect={false}
+        autoFocus={autoFocus}
       />
     </View>
   );

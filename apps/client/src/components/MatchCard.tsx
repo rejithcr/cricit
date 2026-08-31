@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, TouchableOpacity, Modal } from 'react-native';
 import { colors } from '../theme';
 import { useRouter } from 'expo-router';
 
@@ -13,15 +13,11 @@ export function MatchCard({ match, currentUserId }: MatchCardProps) {
   const router = useRouter();
 
   const isLive = match.status === 'live';
-  const isUpcoming = match.status === 'upcoming';
+  const isUpcoming = match.status === 'scheduled' || match.status === 'upcoming';
   const isScorer = true //currentUserId != null && match.scorerId === currentUserId;
 
   const handleCardPress = () => {
     router.push(`/match/${match.matchId}`);
-  };
-
-  const handleScorePress = () => {
-    router.push(`/match/${match.matchId}/score`);
   };
 
   return (
@@ -69,15 +65,6 @@ export function MatchCard({ match, currentUserId }: MatchCardProps) {
         <View style={styles.actionsRow}>
           <Text style={styles.actionText}>Insights</Text>
           <Text style={[styles.actionText, { marginLeft: 16 }]}>Squads</Text>
-          {isScorer && (
-            <TouchableOpacity
-              style={styles.scoreActionBtn}
-              onPress={handleScorePress}
-              activeOpacity={0.75}
-            >
-              <Text style={styles.scoreActionText}>Score</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </View>
     </Pressable>
@@ -191,5 +178,84 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#ffffff',
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#333',
+    textAlign: 'center',
+  },
+  modalLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#555',
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  btnRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  tossBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
+  },
+  tossBtnActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  tossBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#555',
+  },
+  tossBtnTextActive: {
+    color: '#fff',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 24,
+    gap: 12,
+  },
+  modalBtnCancel: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
+  },
+  modalBtnSubmit: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: colors.primary,
+  },
+  modalBtnTextDark: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  modalBtnTextLight: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

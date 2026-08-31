@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, RefreshControl, Modal } from 'react-native';
+import { SettingsMenu } from '../../../src/components/SettingsMenu';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
-import { applyDeliveryToMatch } from '@cricit/scoring-engine';
+// NOTE: scoring-engine removed from viewer in MVP — server broadcasts full snapshots.
+// Phase 4: re-introduce applyDeliveryToMatch here for minimal-delta events.
 import { colors, typography } from '../../../src/theme';
-import { AlertCircle, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { AlertCircle, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react-native';
 
 const BatterRow = ({ batter, playerName, isLast }: any) => (
   <View style={[styles.tableRow, !isLast && styles.borderBottom]}>
@@ -35,7 +37,7 @@ const BowlerRow = ({ bowler, playerName, isLast }: any) => (
       <Text style={[styles.statText, { width: 32, textAlign: 'right' }]}>{bowler.maidens}</Text>
       <Text style={[styles.statText, { width: 32, textAlign: 'right' }]}>{bowler.runs}</Text>
       <Text style={[styles.statText, styles.statBold, { width: 28, textAlign: 'right' }]}>{bowler.wickets}</Text>
-      <Text style={[styles.statText, { width: 45, textAlign: 'right' }]}>{bowler.economy}</Text>
+      <Text style={[styles.statText, { width: 45, textAlign: 'right' }]}>{bowler.economy.toFixed(1)}</Text>
     </View>
   </View>
 );
@@ -45,7 +47,14 @@ export default function ScorecardScreen() {
   const queryClient = useQueryClient();
   const [collapsedInnings, setCollapsedInnings] = useState<Record<number, boolean>>({});
   const [refreshing, setRefreshing] = useState(false);
+  const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
+  const [tossModalVisible, setTossModalVisible] = useState(false);
+  const [tossData, setTossData] = useState({ wonBy: 0, decision: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Placeholder scorer check – replace with proper auth logic
+  const isScorer = true; // TODO: determine if current user is the scorer
   const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.5:3001';
+  const router = useRouter();
 
   const { data: match, error, isLoading, refetch } = useQuery({
     queryKey: ['match', id],
@@ -58,24 +67,25 @@ export default function ScorecardScreen() {
 
   useEffect(() => {
     if (!id) return;
-    
+
     const socket = io(apiUrl);
-    
+
     socket.on('connect', () => {
       socket.emit('join_match', { matchId: id });
     });
 
-    socket.on('MATCH_EVENT', (eventPayload: { matchId: string, action: string, data?: any }) => {
-      if (String(eventPayload.matchId) === String(id)) {
-        if (eventPayload.action === 'ball') {
-          queryClient.setQueryData(['match', id], (oldMatch: any) => {
-            if (!oldMatch) return oldMatch;
-            return applyDeliveryToMatch(oldMatch, eventPayload.data);
-          });
-        } else if (eventPayload.action === 'undo' || eventPayload.action === 'new_bowler') {
-          // Structural changes: pull fresh authoritative state from server
-          refetch();
-        }
+    socket.on('MATCH_EVENT', (eventPayload: { matchId: string, action: string, snapshot?: any }) => {
+      if (String(eventPayload.matchId) === String(id) && eventPayload.snapshot) {
+        // MVP: server sends full scorecard snapshot on every event.
+        // Merge snapshot into the existing match data in the cache.
+        queryClient.setQueryData(['match', id], (oldMatch: any) => {
+          if (!oldMatch) return oldMatch;
+          return {
+            ...oldMatch,
+            innings: eventPayload.snapshot.innings,
+            commentary: eventPayload.snapshot.commentary,
+          };
+        });
       }
     });
 
@@ -99,6 +109,35 @@ export default function ScorecardScreen() {
     return player?.playerName || 'Unknown Player';
   };
 
+  const handleScorePress = () => {
+    setSettingsMenuVisible(false);
+    if (match?.status === 'scheduled') {
+      setTossModalVisible(true);
+    } else {
+      router.push(`/match/${id}/score`);
+    }
+  };
+
+  const handleTossSubmit = async () => {
+    if (!tossData.wonBy || !tossData.decision) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`${apiUrl}/matches/${id}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toss', data: tossData, scorerId: 'scorer-001' })
+      });
+      if (res.ok) {
+        setTossModalVisible(false);
+        router.push(`/match/${id}/score`);
+      }
+    } catch (e) {
+      console.error('Failed to submit toss', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
@@ -119,14 +158,25 @@ export default function ScorecardScreen() {
   }
 
   return (
-    <ScrollView 
-      style={styles.container} 
-      contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.whatsappGreen]} />
-      }
-    >
-      <Stack.Screen options={{ title: `${match.teams?.[0]?.teamName} vs ${match.teams?.[1]?.teamName}`, headerBackTitle: 'Back' }} />
+    <>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.whatsappGreen]} />
+        }
+      >
+      <Stack.Screen 
+        options={{ 
+          title: `${match.teams?.[0]?.teamName} vs ${match.teams?.[1]?.teamName}`, 
+          headerBackTitle: 'Back',
+          headerRight: () => (
+            <TouchableOpacity onPress={() => setSettingsMenuVisible(true)} style={{ marginRight: 10 }}>
+              <MoreVertical size={24} color={colors.onSurface} />
+            </TouchableOpacity>
+          )
+        }} 
+      />
 
       {/* Match Header Info */}
       <View style={styles.matchHeader}>
@@ -142,7 +192,11 @@ export default function ScorecardScreen() {
           <Text style={[styles.resultText, { color: colors.error }]}>Match is Live</Text>
         ) : null}
       </View>
-
+      {match?.status === 'scheduled' && isScorer && (
+        <TouchableOpacity style={styles.startMatchBtn} onPress={handleScorePress}>
+          <Text style={styles.startMatchBtnText}>Start Scoring</Text>
+        </TouchableOpacity>
+      )}
       {/* Innings Scorecards */}
       {match.innings?.map((inning: any, index: number) => {
         const teamName = getTeamName(inning.teamId);
@@ -170,7 +224,7 @@ export default function ScorecardScreen() {
               <View>
                 <Text style={styles.inningTitle}>{teamName}</Text>
                 <Text style={styles.inningScore}>
-                  {inning.score}/{inning.wickets} <Text style={styles.inningOvers}>({inning.overs} Ov)</Text>
+                  {inning.score}/{inning.wickets} <Text style={styles.inningOvers}>({inning.overs} / {match.rules?.totalOvers || 20} Ov)</Text>
                 </Text>
               </View>
               {isCollapsed ? (
@@ -256,6 +310,77 @@ export default function ScorecardScreen() {
       )}
 
     </ScrollView>
+
+      {/* Settings Menu Modal */}
+      <SettingsMenu
+        visible={settingsMenuVisible}
+        onClose={() => setSettingsMenuVisible(false)}
+        isScorer={isScorer}
+        matchStatus={match?.status}
+        onStartScoring={handleScorePress}
+      />
+
+
+      {/* Toss Modal */}
+      <Modal visible={tossModalVisible} transparent animationType="fade">
+        <View style={styles.tossOverlay}>
+          <View style={styles.tossContent}>
+            <Text style={styles.tossTitle}>Match Toss</Text>
+            
+            <Text style={styles.tossLabel}>Who won the toss?</Text>
+            <View style={styles.btnRow}>
+              {match.teams.map((team: any) => (
+                <TouchableOpacity
+                  key={team.teamId}
+                  style={[styles.tossBtn, tossData.wonBy === team.teamId && styles.tossBtnActive]}
+                  onPress={() => setTossData(p => ({ ...p, wonBy: team.teamId }))}
+                >
+                  <Text style={[styles.tossBtnText, tossData.wonBy === team.teamId && styles.tossBtnTextActive]}>
+                    {team.teamName}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.tossLabel, { marginTop: 16 }]}>Decision</Text>
+            <View style={styles.btnRow}>
+              {['bat', 'bowl'].map((dec) => (
+                <TouchableOpacity
+                  key={dec}
+                  style={[styles.tossBtn, tossData.decision === dec && styles.tossBtnActive]}
+                  onPress={() => setTossData(p => ({ ...p, decision: dec }))}
+                >
+                  <Text style={[styles.tossBtnText, tossData.decision === dec && styles.tossBtnTextActive]}>
+                    {dec.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.tossActions}>
+              <TouchableOpacity
+                style={styles.tossBtnCancel}
+                onPress={() => setTossModalVisible(false)}
+                disabled={isSubmitting}
+              >
+                <Text style={styles.tossBtnTextDark}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tossBtnSubmit,
+                  (!tossData.wonBy || !tossData.decision || isSubmitting) && { opacity: 0.5 }
+                ]}
+                onPress={handleTossSubmit}
+                disabled={!tossData.wonBy || !tossData.decision || isSubmitting}
+              >
+                <Text style={styles.tossBtnTextLight}>{isSubmitting ? 'Starting...' : 'Start Scoring'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+    </>
   );
 }
 
@@ -436,5 +561,109 @@ const styles = StyleSheet.create({
     fontSize: typography.bodyMd.fontSize,
     color: colors.onSurface,
     lineHeight: 22,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.surfaceContainer,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 24,
+    paddingBottom: 40, // safe area padding for iOS
+    minHeight: 150,
+  },
+  menuItem: {
+    paddingVertical: 18,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.divider,
+    width: '100%',
+  },
+  menuItemText: {
+    fontSize: 18,
+    color: colors.onSurface,
+    textAlign: 'center',
+  },
+  startMatchBtn: {
+    backgroundColor: colors.whatsappGreen,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignSelf: 'center',
+    marginTop: 12,
+  },
+  startMatchBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  tossOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  tossContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 24,
+  },
+  tossTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  tossLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  btnRow: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  tossBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  tossBtnActive: {
+    backgroundColor: colors.whatsappGreen,
+    borderColor: colors.whatsappGreen,
+  },
+  tossBtnText: {
+    color: '#333',
+  },
+  tossBtnTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  tossActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 24,
+    gap: 12,
+  },
+  tossBtnCancel: {
+    padding: 10,
+  },
+  tossBtnSubmit: {
+    backgroundColor: colors.whatsappGreen,
+    padding: 10,
+    borderRadius: 8,
+  },
+  tossBtnTextDark: {
+    color: '#333',
+  },
+  tossBtnTextLight: {
+    color: '#fff',
+    fontWeight: 'bold',
   }
 });

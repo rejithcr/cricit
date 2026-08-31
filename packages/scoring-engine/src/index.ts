@@ -172,7 +172,7 @@ export function applyDeliveryToMatch(match: any, event: BallEvent | string): any
   // XOR: rotate if exactly ONE of (odd runs, over complete) is true.
   // If both are true (odd runs on last ball of over), they cancel out → batter keeps strike.
   if (striker && nonStriker && !isWicket) {
-    const runBasedRotate = !isExtra && (event.runs % 2 === 1);
+    const runBasedRotate = (event.runs % 2 === 1);
     const shouldRotate = runBasedRotate !== overComplete; // XOR
 
     if (shouldRotate) {

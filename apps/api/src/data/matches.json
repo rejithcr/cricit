@@ -1,5 +1,203 @@
 [
   {
+    "matchId": 5,
+    "scorerId": "scorer-001",
+    "status": "live",
+    "date": "2026-08-24",
+    "scheduledStartTime": "19:30:00",
+    "scheduledEndTime": "23:30:00",
+    "ground": "Sawai Mansingh Stadium, Jaipur",
+    "teams": [
+      {
+        "teamId": 201,
+        "teamName": "Rajasthan Royals",
+        "players": [
+          {
+            "playerId": 201,
+            "playerName": "Yashasvi Jaiswal",
+            "role": "Batsman"
+          },
+          {
+            "playerId": 202,
+            "playerName": "Jos Buttler",
+            "role": "Wicketkeeper"
+          },
+          {
+            "playerId": 203,
+            "playerName": "Sanju Samson",
+            "role": "Wicketkeeper"
+          },
+          {
+            "playerId": 204,
+            "playerName": "Shimron Hetmyer",
+            "role": "Batsman"
+          },
+          {
+            "playerId": 205,
+            "playerName": "Dhruv Jurel",
+            "role": "Wicketkeeper"
+          },
+          {
+            "playerId": 206,
+            "playerName": "Ravichandran Ashwin",
+            "role": "All-Rounder"
+          },
+          {
+            "playerId": 207,
+            "playerName": "Riyan Parag",
+            "role": "All-Rounder"
+          },
+          {
+            "playerId": 208,
+            "playerName": "Trent Boult",
+            "role": "Bowler"
+          },
+          {
+            "playerId": 209,
+            "playerName": "Yuzvendra Chahal",
+            "role": "Bowler"
+          },
+          {
+            "playerId": 210,
+            "playerName": "Sandeep Sharma",
+            "role": "Bowler"
+          },
+          {
+            "playerId": 211,
+            "playerName": "Kuldeep Sen",
+            "role": "Bowler"
+          }
+        ]
+      },
+      {
+        "teamId": 202,
+        "teamName": "Punjab Kings",
+        "players": [
+          {
+            "playerId": 212,
+            "playerName": "Shikhar Dhawan",
+            "role": "Batsman"
+          },
+          {
+            "playerId": 213,
+            "playerName": "Prabhsimran Singh",
+            "role": "Wicketkeeper"
+          },
+          {
+            "playerId": 214,
+            "playerName": "Jonny Bairstow",
+            "role": "Wicketkeeper"
+          },
+          {
+            "playerId": 215,
+            "playerName": "Liam Livingstone",
+            "role": "All-Rounder"
+          },
+          {
+            "playerId": 216,
+            "playerName": "Sam Curran",
+            "role": "All-Rounder"
+          },
+          {
+            "playerId": 217,
+            "playerName": "Jitesh Sharma",
+            "role": "Wicketkeeper"
+          },
+          {
+            "playerId": 218,
+            "playerName": "Harpreet Brar",
+            "role": "All-Rounder"
+          },
+          {
+            "playerId": 219,
+            "playerName": "Rahul Chahar",
+            "role": "Bowler"
+          },
+          {
+            "playerId": 220,
+            "playerName": "Kagiso Rabada",
+            "role": "Bowler"
+          },
+          {
+            "playerId": 221,
+            "playerName": "Arshdeep Singh",
+            "role": "Bowler"
+          },
+          {
+            "playerId": 222,
+            "playerName": "Nathan Ellis",
+            "role": "Bowler"
+          }
+        ]
+      }
+    ],
+    "innings": [
+      {
+        "teamId": 202,
+        "score": 0,
+        "wickets": 0,
+        "overs": 0,
+        "complete": false,
+        "batting": [
+          {
+            "playerId": 212,
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "strikeRate": 0,
+            "dismissal": "not out",
+            "out": false,
+            "isStriker": true
+          },
+          {
+            "playerId": 213,
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "strikeRate": 0,
+            "dismissal": "not out",
+            "out": false,
+            "isStriker": false
+          }
+        ],
+        "bowling": [
+          {
+            "playerId": 208,
+            "overs": 0,
+            "maidens": 0,
+            "runs": 0,
+            "wickets": 0,
+            "economy": 0,
+            "wides": 0,
+            "noBalls": 0,
+            "isCurrentBowler": true
+          }
+        ],
+        "extras": {
+          "byes": 0,
+          "legByes": 0,
+          "wides": 0,
+          "noBalls": 0,
+          "total": 0
+        },
+        "fallOfWickets": []
+      }
+    ],
+    "commentary": [],
+    "rules": {
+      "totalOvers": 20,
+      "ballsPerOver": 6,
+      "inningsPerTeam": 1,
+      "maxWickets": 10
+    },
+    "toss": {
+      "wonBy": 201,
+      "decision": "bowl"
+    }
+  },
+  {
     "matchId": 1,
     "scorerId": "scorer-001",
     "status": "live",
@@ -7,10 +205,6 @@
     "scheduledStartTime": "14:00:00",
     "scheduledEndTime": "18:00:00",
     "ground": "Wankhede Stadium, Mumbai",
-    "toss": {
-      "wonBy": 101,
-      "decision": "bat"
-    },
     "teams": [
       {
         "teamId": 101,
@@ -138,59 +332,29 @@
     "innings": [
       {
         "teamId": 101,
-        "score": 306,
-        "wickets": 5,
-        "overs": 27,
+        "score": 7,
+        "wickets": 0,
+        "overs": 0.3,
+        "complete": false,
         "batting": [
           {
             "playerId": 1,
-            "runs": 45,
-            "balls": 30,
-            "fours": 5,
-            "sixes": 2,
+            "runs": 3,
+            "balls": 2,
+            "fours": 0,
+            "sixes": 0,
             "strikeRate": 150,
-            "dismissal": "c Gaikwad b Pathirana",
-            "out": true
+            "dismissal": "not out",
+            "out": false,
+            "isStriker": false
           },
           {
             "playerId": 2,
-            "runs": 22,
-            "balls": 18,
-            "fours": 3,
-            "sixes": 0,
-            "strikeRate": 122.22,
-            "dismissal": "lbw b Jadeja",
-            "out": true
-          },
-          {
-            "playerId": 3,
-            "runs": 219,
-            "balls": 91,
-            "fours": 24,
-            "sixes": 7,
-            "strikeRate": 240.65934065934064,
-            "dismissal": "run out (Fielder)",
-            "out": true,
-            "isStriker": false
-          },
-          {
-            "playerId": 4,
-            "runs": 14,
-            "balls": 7,
+            "runs": 4,
+            "balls": 1,
             "fours": 1,
-            "sixes": 1,
-            "strikeRate": 200,
-            "dismissal": "Out",
-            "out": true,
-            "isStriker": false
-          },
-          {
-            "playerId": 1004,
-            "runs": 1,
-            "balls": 4,
-            "fours": 0,
             "sixes": 0,
-            "strikeRate": 25,
+            "strikeRate": 400,
             "dismissal": "not out",
             "out": false,
             "isStriker": true
@@ -198,448 +362,62 @@
         ],
         "bowling": [
           {
-            "playerId": 8,
-            "overs": 14,
+            "playerId": 7,
+            "overs": 0.3,
             "maidens": 0,
-            "runs": 184,
-            "wickets": 2,
-            "economy": 13.142857142857142,
-            "wides": 1,
+            "runs": 7,
+            "wickets": 0,
+            "economy": 14,
+            "wides": 0,
             "noBalls": 0,
             "isCurrentBowler": true
-          },
-          {
-            "playerId": 7,
-            "overs": 4,
-            "maidens": 0,
-            "runs": 28,
-            "wickets": 1,
-            "economy": 7,
-            "wides": 0,
-            "noBalls": 0
           }
         ],
         "extras": {
-          "byes": 1,
-          "legByes": 2,
-          "wides": 2,
+          "byes": 0,
+          "legByes": 0,
+          "wides": 0,
           "noBalls": 0,
-          "total": 5
+          "total": 0
         },
-        "fallOfWickets": [
-          {
-            "score": 60,
-            "wicket": 1,
-            "overs": 6.2,
-            "playerId": 2
-          },
-          {
-            "score": 95,
-            "wicket": 2,
-            "overs": 10.5,
-            "playerId": 1
-          }
-        ]
+        "fallOfWickets": []
       }
     ],
-    "result": null,
     "commentary": [
       {
-        "over": 14,
+        "over": 0.3,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 0.2,
+        "text": "3 runs",
+        "isWicket": false,
+        "runs": 3
+      },
+      {
+        "over": 0.1,
         "text": "0 runs",
         "isWicket": false,
         "runs": 0
-      },
-      {
-        "over": 13.5,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 13.4,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 13.3,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 13.2,
-        "text": "Wicket falls!",
-        "isWicket": true,
-        "runs": 1
-      },
-      {
-        "over": 13.1,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 13,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 12.5,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 12.4,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 12.3,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 12.2,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 12.1,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 12,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 11.5,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 11.4,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 11.3,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 11.2,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 11.1,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 11,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 10.5,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 10.4,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 10.3,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 10.2,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 10.1,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 10,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 9.5,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 9.4,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 9.3,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 9.2,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 9.1,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 9,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 8.5,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 8.4,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 8.3,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 8.2,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 8.1,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 8,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 7.5,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 7.4,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 7.3,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 7.2,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 7.1,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 7,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 6.5,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 6.4,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 6.3,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 6.2,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 6.1,
-        "text": "4 runs",
-        "isWicket": false,
-        "runs": 4
-      },
-      {
-        "over": 6,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 5.5,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 5.4,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 5.3,
-        "text": "6 runs",
-        "isWicket": false,
-        "runs": 6
-      },
-      {
-        "over": 5.2,
-        "text": "6 runs",
-        "isWicket": false,
-        "runs": 6
-      },
-      {
-        "over": 5.1,
-        "text": "6 runs",
-        "isWicket": false,
-        "runs": 6
-      },
-      {
-        "over": 5,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 4.5,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 4.4,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 4.3,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 4.2,
-        "text": "Wicket falls!",
-        "isWicket": true,
-        "runs": 0
-      },
-      {
-        "over": 4.1,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 4,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 3.5,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 16.4,
-        "text": "Pathirana to Suryakumar, FOUR, incredible shot over extra cover!",
-        "runs": 4,
-        "isWicket": false
-      },
-      {
-        "over": 16.3,
-        "text": "Pathirana to Suryakumar, no run, slower ball outside off.",
-        "runs": 0,
-        "isWicket": false
-      },
-      {
-        "over": 16.2,
-        "text": "Pathirana to Suryakumar, SIX, picked it up early and deposited it into the stands!",
-        "runs": 6,
-        "isWicket": false
       }
-    ]
+    ],
+    "rules": {
+      "totalOvers": 4,
+      "ballsPerOver": 6,
+      "inningsPerTeam": 1,
+      "maxWickets": 4
+    },
+    "toss": {
+      "wonBy": 101,
+      "decision": "bat"
+    }
   },
   {
     "matchId": 2,
     "scorerId": "scorer-001",
-    "status": "scheduled",
+    "status": "live",
     "date": "2026-08-24",
     "scheduledStartTime": "19:30:00",
     "scheduledEndTime": "23:30:00",
@@ -767,7 +545,37 @@
           }
         ]
       }
-    ]
+    ],
+    "rules": {
+      "totalOvers": 4,
+      "ballsPerOver": 6,
+      "inningsPerTeam": 1,
+      "maxWickets": 3
+    },
+    "innings": [
+      {
+        "teamId": 103,
+        "score": 0,
+        "wickets": 0,
+        "overs": 0,
+        "complete": false,
+        "batting": [],
+        "bowling": [],
+        "extras": {
+          "byes": 0,
+          "legByes": 0,
+          "wides": 0,
+          "noBalls": 0,
+          "total": 0
+        },
+        "fallOfWickets": []
+      }
+    ],
+    "commentary": [],
+    "toss": {
+      "wonBy": 103,
+      "decision": "bat"
+    }
   },
   {
     "matchId": 3,
@@ -976,7 +784,13 @@
         "runs": 0,
         "isWicket": true
       }
-    ]
+    ],
+    "rules": {
+      "totalOvers": 20,
+      "ballsPerOver": 6,
+      "inningsPerTeam": 1,
+      "maxWickets": 10
+    }
   },
   {
     "matchId": 4,
@@ -1319,388 +1133,12 @@
         "runs": 0,
         "isWicket": true
       }
-    ]
-  },
-  {
-    "matchId": 5,
-    "scorerId": "scorer-001",
-    "status": "live",
-    "date": "2026-08-24",
-    "scheduledStartTime": "19:30:00",
-    "scheduledEndTime": "23:30:00",
-    "ground": "Sawai Mansingh Stadium, Jaipur",
-    "toss": {
-      "wonBy": 201,
-      "decision": "bat"
-    },
-    "teams": [
-      {
-        "teamId": 201,
-        "teamName": "Rajasthan Royals",
-        "players": [
-          {
-            "playerId": 201,
-            "playerName": "Yashasvi Jaiswal",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 202,
-            "playerName": "Jos Buttler",
-            "role": "Wicketkeeper"
-          },
-          {
-            "playerId": 203,
-            "playerName": "Sanju Samson",
-            "role": "Wicketkeeper"
-          },
-          {
-            "playerId": 204,
-            "playerName": "Shimron Hetmyer",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 205,
-            "playerName": "Dhruv Jurel",
-            "role": "Wicketkeeper"
-          },
-          {
-            "playerId": 206,
-            "playerName": "Ravichandran Ashwin",
-            "role": "All-Rounder"
-          },
-          {
-            "playerId": 207,
-            "playerName": "Riyan Parag",
-            "role": "All-Rounder"
-          },
-          {
-            "playerId": 208,
-            "playerName": "Trent Boult",
-            "role": "Bowler"
-          },
-          {
-            "playerId": 209,
-            "playerName": "Yuzvendra Chahal",
-            "role": "Bowler"
-          },
-          {
-            "playerId": 210,
-            "playerName": "Sandeep Sharma",
-            "role": "Bowler"
-          },
-          {
-            "playerId": 211,
-            "playerName": "Kuldeep Sen",
-            "role": "Bowler"
-          }
-        ]
-      },
-      {
-        "teamId": 202,
-        "teamName": "Punjab Kings",
-        "players": [
-          {
-            "playerId": 212,
-            "playerName": "Shikhar Dhawan",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 213,
-            "playerName": "Prabhsimran Singh",
-            "role": "Wicketkeeper"
-          },
-          {
-            "playerId": 214,
-            "playerName": "Jonny Bairstow",
-            "role": "Wicketkeeper"
-          },
-          {
-            "playerId": 215,
-            "playerName": "Liam Livingstone",
-            "role": "All-Rounder"
-          },
-          {
-            "playerId": 216,
-            "playerName": "Sam Curran",
-            "role": "All-Rounder"
-          },
-          {
-            "playerId": 217,
-            "playerName": "Jitesh Sharma",
-            "role": "Wicketkeeper"
-          },
-          {
-            "playerId": 218,
-            "playerName": "Harpreet Brar",
-            "role": "All-Rounder"
-          },
-          {
-            "playerId": 219,
-            "playerName": "Rahul Chahar",
-            "role": "Bowler"
-          },
-          {
-            "playerId": 220,
-            "playerName": "Kagiso Rabada",
-            "role": "Bowler"
-          },
-          {
-            "playerId": 221,
-            "playerName": "Arshdeep Singh",
-            "role": "Bowler"
-          },
-          {
-            "playerId": 222,
-            "playerName": "Nathan Ellis",
-            "role": "Bowler"
-          }
-        ]
-      }
     ],
-    "innings": [
-      {
-        "teamId": 201,
-        "score": 30,
-        "wickets": 1,
-        "overs": 4,
-        "batting": [
-          {
-            "playerId": 201,
-            "runs": 5,
-            "balls": 9,
-            "fours": 0,
-            "sixes": 0,
-            "strikeRate": 55.55555555555556,
-            "dismissal": "b Bowler",
-            "out": true,
-            "isStriker": false
-          },
-          {
-            "playerId": 202,
-            "runs": 15,
-            "balls": 13,
-            "fours": 0,
-            "sixes": 1,
-            "strikeRate": 115.38461538461537,
-            "dismissal": "not out",
-            "out": false,
-            "isStriker": true
-          },
-          {
-            "playerId": 203,
-            "runs": 7,
-            "balls": 3,
-            "fours": 0,
-            "sixes": 0,
-            "strikeRate": 233.33333333333334,
-            "dismissal": "not out",
-            "out": false,
-            "isStriker": false
-          }
-        ],
-        "bowling": [
-          {
-            "playerId": 220,
-            "overs": 2,
-            "maidens": 0,
-            "runs": 8,
-            "wickets": 1,
-            "economy": 4,
-            "wides": 0,
-            "noBalls": 0,
-            "isCurrentBowler": false
-          },
-          {
-            "playerId": 222,
-            "overs": 1,
-            "maidens": 0,
-            "runs": 8,
-            "wickets": 0,
-            "economy": 8,
-            "wides": 0,
-            "noBalls": 0,
-            "isCurrentBowler": false
-          },
-          {
-            "playerId": 221,
-            "overs": 1,
-            "maidens": 0,
-            "runs": 14,
-            "wickets": 0,
-            "economy": 14,
-            "wides": 0,
-            "noBalls": 0,
-            "isCurrentBowler": true
-          }
-        ],
-        "extras": {
-          "byes": 0,
-          "legByes": 0,
-          "wides": 2,
-          "noBalls": 1,
-          "total": 3
-        },
-        "fallOfWickets": []
-      }
-    ],
-    "result": null,
-    "commentary": [
-      {
-        "over": 1,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 0.5,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 0.4,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 0.3,
-        "text": "No ball + 0 runs",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 0.3,
-        "text": "2 wides",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 0.3,
-        "text": "3 runs",
-        "isWicket": false,
-        "runs": 3
-      },
-      {
-        "over": 0.2,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 0.1,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 2,
-        "text": "Wicket falls!",
-        "isWicket": true,
-        "runs": 0
-      },
-      {
-        "over": 1.5,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 1.4,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 1.3,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 1.2,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 1.1,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 1,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 0.5,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 0.4,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 0.3,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 0.2,
-        "text": "6 runs",
-        "isWicket": false,
-        "runs": 6
-      },
-      {
-        "over": 0.1,
-        "text": "2 runs",
-        "isWicket": false,
-        "runs": 2
-      },
-      {
-        "over": 1,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 0.5,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 0.4,
-        "text": "1 run",
-        "isWicket": false,
-        "runs": 1
-      },
-      {
-        "over": 0.3,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 0.2,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      },
-      {
-        "over": 0.1,
-        "text": "0 runs",
-        "isWicket": false,
-        "runs": 0
-      }
-    ]
+    "rules": {
+      "totalOvers": 20,
+      "ballsPerOver": 6,
+      "inningsPerTeam": 1,
+      "maxWickets": 10
+    }
   }
 ]
