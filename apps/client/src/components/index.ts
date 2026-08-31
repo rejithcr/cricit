@@ -6,3 +6,4 @@ export * from './BowlerScoreCard';
 export * from './MatchCard';
 export * from './ConfirmationModal';
 export * from './SettingsMenu';
+export * from './NumericTextInput';

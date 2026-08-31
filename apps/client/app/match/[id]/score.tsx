@@ -16,7 +16,7 @@ import { useLocalSearchParams, Stack, useFocusEffect } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { User, Search, MoreVertical } from 'lucide-react-native';
 import { colors, typography } from '../../../src/theme';
-import { ConfirmationModal, SearchBar, SettingsMenu } from '../../../src/components';
+import { ConfirmationModal, SearchBar, SettingsMenu, NumericTextInput } from '../../../src/components';
 import { useRouter } from 'expo-router';
 
 // ─── Domain types ────────────────────────────────────────────────────────────
@@ -244,6 +244,8 @@ export default function ScoringScreen() {
   const [newBowlerSearch, setNewBowlerSearch] = useState('');
   const [newBatterSearch, setNewBatterSearch] = useState('');
   const [wicketStep, setWicketStep] = useState(1);
+  const [showWicketManualRuns, setShowWicketManualRuns] = useState(false);
+  const [wicketManualRunsStr, setWicketManualRunsStr] = useState('');
   const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
   const [resetConfirmVisible, setResetConfirmVisible] = useState(false);
   const [overCompleteAlertVisible, setOverCompleteAlertVisible] = useState(false);
@@ -481,8 +483,10 @@ export default function ScoringScreen() {
     submitEvent('new_bowler', { bowlerId: resolvedBowlerId });
   };
 
-  const handleCustomRunSubmit = () => {
+  const handleCustomRunSubmit = (runStr?: string) => {
     setCustomRunModalVisible(false);
+
+    const runToSubmit = runStr !== undefined ? runStr : customRunInput;
 
     let typeStr = 'legal';
     if (customRunType === 'Wd') typeStr = 'wide';
@@ -492,7 +496,7 @@ export default function ScoringScreen() {
 
     processDelivery({
       type: typeStr,
-      runs: parseInt(customRunInput || '0', 10)
+      runs: parseInt(runToSubmit || '0', 10)
     });
   };
 
@@ -672,22 +676,20 @@ export default function ScoringScreen() {
         </View>
       </View>
 
-      {/* Wicket Modal — two-step full screen */}
-      <Modal visible={wicketModalVisible} transparent animationType="slide">
-        <SafeAreaView style={styles.fullScreenModalOverlay}>
-          <View style={styles.fullScreenModalContent}>
-            <View style={styles.fullScreenModalHeader}>
-              <Text style={styles.fullScreenModalTitle}>🏏 Wicket!</Text>
-            </View>
+      {/* Wicket Modal */}
+      <Modal visible={wicketModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: '90%' }]}>
+            <Text style={styles.modalTitle}>🏏 Wicket!</Text>
 
             {wicketStep === 1 ? (
-              <ScrollView style={{ width: '100%' }} showsVerticalScrollIndicator={false}>
+              <View style={{ width: '100%' }}>
                 <Text style={styles.modalLabel}>Dismissal Type</Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 15, justifyContent: 'center' }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 15, justifyContent: 'center', width: '100%' }}>
                   {['Caught', 'Bowled', 'Run Out', 'LBW', 'Stumped'].map(wt => (
                     <TouchableOpacity
                       key={wt}
-                      style={[styles.runsBtn, wicketDetails.type === wt && styles.runsBtnActive, { paddingHorizontal: 15, width: 'auto' }]}
+                      style={[styles.runsBtn, wicketDetails.type === wt && styles.runsBtnActive, { flex: 0, minWidth: '30%', paddingHorizontal: 0 }]}
                       onPress={() => setWicketDetails(p => ({ ...p, type: wt }))}
                     >
                       <Text style={[styles.runsBtnText, wicketDetails.type === wt && styles.runsBtnTextActive]}>{wt}</Text>
@@ -698,17 +700,49 @@ export default function ScoringScreen() {
                 {wicketDetails.type === 'Run Out' && (
                   <>
                     <Text style={styles.modalLabel}>Runs Completed</Text>
-                    <View style={styles.runsRow}>
+                    <View style={[styles.runsRow, { flexWrap: 'wrap' }]}>
                       {[0, 1, 2, 3].map(r => (
                         <TouchableOpacity
                           key={r}
-                          style={[styles.runsBtn, wicketDetails.runs === r && styles.runsBtnActive]}
-                          onPress={() => setWicketDetails(p => ({ ...p, runs: r }))}
+                          style={[styles.runsBtn, wicketDetails.runs === r && !showWicketManualRuns && styles.runsBtnActive]}
+                          onPress={() => {
+                            setWicketDetails(p => ({ ...p, runs: r }));
+                            setShowWicketManualRuns(false);
+                          }}
                         >
-                          <Text style={[styles.runsBtnText, wicketDetails.runs === r && styles.runsBtnTextActive]}>{r}</Text>
+                          <Text style={[styles.runsBtnText, wicketDetails.runs === r && !showWicketManualRuns && styles.runsBtnTextActive]}>{r}</Text>
                         </TouchableOpacity>
                       ))}
+                      <TouchableOpacity
+                        style={[styles.runsBtn, showWicketManualRuns && styles.runsBtnActive]}
+                        onPress={() => setShowWicketManualRuns(true)}
+                      >
+                        <Text style={[styles.runsBtnText, showWicketManualRuns && styles.runsBtnTextActive]}>Other</Text>
+                      </TouchableOpacity>
                     </View>
+
+                    {showWicketManualRuns && (
+                      <NumericTextInput
+                        style={{
+                          backgroundColor: colors.surfaceContainerLowest,
+                          borderWidth: 1,
+                          borderColor: colors.surfaceContainerHighest,
+                          borderRadius: 8,
+                          padding: 12,
+                          fontSize: 18,
+                          color: colors.onSurface,
+                          marginTop: 12
+                        }}
+                        value={wicketManualRunsStr}
+                        onChangeText={(text) => {
+                          setWicketManualRunsStr(text);
+                          setWicketDetails(p => ({ ...p, runs: parseInt(text || '0', 10) }));
+                        }}
+                        placeholder="Enter runs manually..."
+                        placeholderTextColor={colors.systemGray}
+                        autoFocus
+                      />
+                    )}
 
                     <Text style={styles.modalLabel}>Who is out?</Text>
                     <View style={styles.runsRow}>
@@ -728,7 +762,7 @@ export default function ScoringScreen() {
                   </>
                 )}
 
-                <View style={[styles.fullScreenModalActions, { marginTop: 32 }]}>
+                <View style={[styles.modalActions, { marginTop: 24 }]}>
                   <TouchableOpacity
                     style={styles.modalBtnCancel}
                     onPress={() => {
@@ -740,15 +774,15 @@ export default function ScoringScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.modalBtnSubmit, { flex: 1, marginLeft: 16 }]}
+                    style={styles.modalBtnSubmit}
                     onPress={() => setWicketStep(2)}
                   >
                     <Text style={styles.modalBtnTextLight}>Next</Text>
                   </TouchableOpacity>
                 </View>
-              </ScrollView>
+              </View>
             ) : (
-              <View style={styles.searchListContainer}>
+              <View style={[styles.searchListContainer, { flexShrink: 1, maxHeight: 400 }]}>
                 {isMaxWicketsReached && (
                   <Text style={{ color: colors.error, marginBottom: 12, fontSize: 14, fontWeight: 'bold', textAlign: 'center' }}>
                     Max wickets reached! You can choose to End Innings.
@@ -799,14 +833,14 @@ export default function ScoringScreen() {
                   })()}
                 </ScrollView>
 
-                <View style={styles.fullScreenModalActions}>
+                <View style={[styles.modalActions, { marginTop: 16 }]}>
                   <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setWicketStep(1)}>
                     <Text style={styles.modalBtnTextDark}>Back</Text>
                   </TouchableOpacity>
 
                   {isMaxWicketsReached && (
                     <TouchableOpacity
-                      style={[styles.modalBtnSubmit, { backgroundColor: colors.error, marginLeft: 16 }]}
+                      style={[styles.modalBtnSubmit, { backgroundColor: colors.error }]}
                       onPress={() => {
                         handleWicketSubmit(true);
                       }}
@@ -819,7 +853,7 @@ export default function ScoringScreen() {
             )}
 
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
 
       {/* Custom Runs / Extra Modal */}
@@ -845,6 +879,7 @@ export default function ScoringScreen() {
                     onPress={() => {
                       setCustomRunInput(String(r));
                       setShowManualRunInput(false);
+                      handleCustomRunSubmit(String(r));
                     }}
                   >
                     <Text style={[styles.runsBtnText, customRunInput === String(r) && !showManualRunInput && styles.runsBtnTextActive]}>{r}</Text>
@@ -860,7 +895,7 @@ export default function ScoringScreen() {
             </View>
 
             {showManualRunInput && (
-              <TextInput
+              <NumericTextInput
                 style={{
                   backgroundColor: colors.surfaceContainerLowest,
                   borderWidth: 1,
@@ -871,7 +906,6 @@ export default function ScoringScreen() {
                   color: colors.onSurface,
                   marginTop: 12
                 }}
-                keyboardType="number-pad"
                 value={customRunInput}
                 onChangeText={setCustomRunInput}
                 placeholder="Enter runs manually..."
@@ -884,25 +918,25 @@ export default function ScoringScreen() {
               <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setCustomRunModalVisible(false)}>
                 <Text style={styles.modalBtnTextDark}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalBtnSubmit} onPress={handleCustomRunSubmit}>
-                <Text style={styles.modalBtnTextLight}>Confirm</Text>
-              </TouchableOpacity>
+              {showManualRunInput && customRunInput.length > 0 && (
+                <TouchableOpacity style={styles.modalBtnSubmit} onPress={() => handleCustomRunSubmit()}>
+                  <Text style={styles.modalBtnTextLight}>Confirm</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* New Bowler Modal — full screen, searchable */}
-      <Modal visible={newBowlerModalVisible} animationType="slide">
-        <SafeAreaView style={styles.fullScreenModalOverlay}>
-          <View style={styles.fullScreenModalContent}>
+      {/* New Bowler Modal */}
+      <Modal visible={newBowlerModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: '90%' }]}>
 
-            <View style={styles.fullScreenModalHeader}>
-              <Text style={styles.fullScreenModalTitle}>⚾ Over Complete!</Text>
-              <Text style={styles.modalLabel}>Who is bowling the next over?</Text>
-            </View>
+            <Text style={styles.modalTitle}>⚾ Over Complete!</Text>
+            <Text style={styles.modalLabel}>Who is bowling the next over?</Text>
 
-            <View style={styles.searchListContainer}>
+            <View style={[styles.searchListContainer, { flexShrink: 1, maxHeight: 400 }]}>
               <View style={{ marginBottom: 12 }}>
                 <SearchBar
                   placeholder="Search next bowler..."
@@ -945,7 +979,7 @@ export default function ScoringScreen() {
                 })()}
               </ScrollView>
 
-              <View style={styles.fullScreenModalActions}>
+              <View style={[styles.modalActions, { marginTop: 16 }]}>
                 <TouchableOpacity
                   style={styles.modalBtnCancel}
                   onPress={() => {
@@ -964,7 +998,7 @@ export default function ScoringScreen() {
             </View>
 
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
 
       {/* Innings Complete Modal */}
