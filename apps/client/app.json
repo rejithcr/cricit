@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "client",
-    "slug": "client",
+    "name": "cricit-client",
+    "slug": "cricit-client",
     "scheme": "cricit",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -25,6 +25,12 @@
     "plugins": [
       "expo-router",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8ccdb968-8aa7-4056-b534-d055c89c241b"
+      }
+    }
   }
 }
