@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ScoringGateway } from './scoring.gateway';
-import { applyDeliveryToMatch } from '@cricit/scoring-engine';
+import { applyDeliveryToMatch } from '../scoring-engine';
 
 /**
  * Builds the scorecard snapshot broadcast to all viewers on each event.

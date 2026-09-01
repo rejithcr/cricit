@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
-    "@cricit/scoring-engine": "^1.0.0",
     "@expo/metro-runtime": "~57.0.12",
     "@react-native-async-storage/async-storage": "^3.1.1",
     "@react-native-picker/picker": "^2.11.4",
