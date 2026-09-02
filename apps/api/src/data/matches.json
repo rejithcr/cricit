@@ -134,29 +134,29 @@
     "innings": [
       {
         "teamId": 202,
-        "score": 37,
+        "score": 48,
         "wickets": 0,
-        "overs": 2,
+        "overs": 3.5,
         "complete": false,
         "batting": [
           {
             "playerId": 212,
-            "runs": 0,
-            "balls": 1,
-            "fours": 0,
+            "runs": 8,
+            "balls": 5,
+            "fours": 1,
             "sixes": 0,
-            "strikeRate": 0,
+            "strikeRate": 160,
             "dismissal": "not out",
             "out": false,
             "isStriker": false
           },
           {
             "playerId": 213,
-            "runs": 9,
-            "balls": 15,
+            "runs": 12,
+            "balls": 22,
             "fours": 0,
             "sixes": 1,
-            "strikeRate": 60,
+            "strikeRate": 54.54545454545454,
             "dismissal": "not out",
             "out": false,
             "isStriker": true
@@ -187,11 +187,22 @@
           },
           {
             "playerId": 206,
-            "overs": 0,
+            "overs": 1,
             "maidens": 0,
             "runs": 0,
             "wickets": 0,
             "economy": 0,
+            "wides": 0,
+            "noBalls": 0,
+            "isCurrentBowler": false
+          },
+          {
+            "playerId": 202,
+            "overs": 0.5,
+            "maidens": 0,
+            "runs": 11,
+            "wickets": 0,
+            "economy": 13.2,
             "wides": 0,
             "noBalls": 0,
             "isCurrentBowler": true
@@ -208,6 +219,72 @@
       }
     ],
     "commentary": [
+      {
+        "over": 0.5,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 0.4,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 0.3,
+        "text": "3 runs",
+        "isWicket": false,
+        "runs": 3
+      },
+      {
+        "over": 0.2,
+        "text": "3 runs",
+        "isWicket": false,
+        "runs": 3
+      },
+      {
+        "over": 0.1,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
+      {
+        "over": 1,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
+      {
+        "over": 0.5,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
+      {
+        "over": 0.4,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
+      {
+        "over": 0.3,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
+      {
+        "over": 0.2,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
+      {
+        "over": 0.1,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
       {
         "over": 1,
         "text": "3 runs",
@@ -343,7 +420,7 @@
   {
     "matchId": 1,
     "scorerId": "scorer-001",
-    "status": "live",
+    "status": "completed",
     "date": "2026-08-23",
     "scheduledStartTime": "14:00:00",
     "scheduledEndTime": "18:00:00",
@@ -582,45 +659,67 @@
       },
       {
         "teamId": 102,
-        "score": 0,
+        "score": 44,
         "wickets": 0,
-        "overs": 0.5,
-        "complete": false,
+        "overs": 4,
+        "complete": true,
         "batting": [
           {
             "playerId": 5,
-            "runs": 0,
-            "balls": 5,
-            "fours": 0,
+            "runs": 27,
+            "balls": 15,
+            "fours": 5,
             "sixes": 0,
-            "strikeRate": 0,
-            "dismissal": "not out",
-            "out": false,
-            "isStriker": true
-          },
-          {
-            "playerId": 6,
-            "runs": 0,
-            "balls": 0,
-            "fours": 0,
-            "sixes": 0,
-            "strikeRate": 0,
+            "strikeRate": 180,
             "dismissal": "not out",
             "out": false,
             "isStriker": false
+          },
+          {
+            "playerId": 6,
+            "runs": 17,
+            "balls": 9,
+            "fours": 3,
+            "sixes": 0,
+            "strikeRate": 188.88888888888889,
+            "dismissal": "not out",
+            "out": false,
+            "isStriker": true
           }
         ],
         "bowling": [
           {
             "playerId": 1006,
-            "overs": 0.5,
+            "overs": 1.2,
             "maidens": 0,
-            "runs": 0,
+            "runs": 5,
             "wickets": 0,
-            "economy": 0,
+            "economy": 3.75,
+            "wides": 0,
+            "noBalls": 0,
+            "isCurrentBowler": false
+          },
+          {
+            "playerId": 3,
+            "overs": 1.4,
+            "maidens": 0,
+            "runs": 24,
+            "wickets": 0,
+            "economy": 14.399999999999999,
             "wides": 0,
             "noBalls": 0,
             "isCurrentBowler": true
+          },
+          {
+            "playerId": 1001,
+            "overs": 1,
+            "maidens": 0,
+            "runs": 15,
+            "wickets": 0,
+            "economy": 15,
+            "wides": 0,
+            "noBalls": 0,
+            "isCurrentBowler": false
           }
         ],
         "extras": {
@@ -634,6 +733,120 @@
       }
     ],
     "commentary": [
+      {
+        "over": 1.4,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 1.3,
+        "text": "0 runs",
+        "isWicket": false,
+        "runs": 0
+      },
+      {
+        "over": 1.2,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 1.1,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 1,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 0.5,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 1,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 0.5,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 0.4,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 0.3,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 0.2,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 0.1,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 0.4,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 0.3,
+        "text": "4 runs",
+        "isWicket": false,
+        "runs": 4
+      },
+      {
+        "over": 0.2,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 0.1,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 1.2,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 1.1,
+        "text": "1 run",
+        "isWicket": false,
+        "runs": 1
+      },
+      {
+        "over": 1,
+        "text": "3 runs",
+        "isWicket": false,
+        "runs": 3
+      },
       {
         "over": 0.5,
         "text": "0 runs",
@@ -818,7 +1031,8 @@
     "toss": {
       "wonBy": 101,
       "decision": "bat"
-    }
+    },
+    "result": "Chennai Super Kings won by 4 wickets (0 balls remaining)"
   },
   {
     "matchId": 2,
@@ -981,221 +1195,6 @@
     "toss": {
       "wonBy": 103,
       "decision": "bat"
-    }
-  },
-  {
-    "matchId": 3,
-    "scorerId": "scorer-001",
-    "status": "completed",
-    "date": "2026-08-22",
-    "scheduledStartTime": "19:30:00",
-    "scheduledEndTime": "23:30:00",
-    "ground": "M. Chinnaswamy Stadium, Bengaluru",
-    "toss": {
-      "wonBy": 104,
-      "decision": "field"
-    },
-    "result": "Mumbai Indians won by 12 runs",
-    "playerOfTheMatch": 1,
-    "teams": [
-      {
-        "teamId": 104,
-        "teamName": "Royal Challengers Bangalore",
-        "players": [
-          {
-            "playerId": 11,
-            "playerName": "Virat Kohli",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 12,
-            "playerName": "Faf du Plessis",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1032,
-            "playerName": "Royal Player 3",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1033,
-            "playerName": "Royal Player 4",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1034,
-            "playerName": "Royal Player 5",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1035,
-            "playerName": "Royal Player 6",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1036,
-            "playerName": "Royal Player 7",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1037,
-            "playerName": "Royal Player 8",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1038,
-            "playerName": "Royal Player 9",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1039,
-            "playerName": "Royal Player 10",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1040,
-            "playerName": "Royal Player 11",
-            "role": "Batsman"
-          }
-        ]
-      },
-      {
-        "teamId": 101,
-        "teamName": "Mumbai Indians",
-        "players": [
-          {
-            "playerId": 1,
-            "playerName": "Rohit Sharma",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 4,
-            "playerName": "Jasprit Bumrah",
-            "role": "Bowler"
-          },
-          {
-            "playerId": 1041,
-            "playerName": "Mumbai Player 3",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1042,
-            "playerName": "Mumbai Player 4",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1043,
-            "playerName": "Mumbai Player 5",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1044,
-            "playerName": "Mumbai Player 6",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1045,
-            "playerName": "Mumbai Player 7",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1046,
-            "playerName": "Mumbai Player 8",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1047,
-            "playerName": "Mumbai Player 9",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1048,
-            "playerName": "Mumbai Player 10",
-            "role": "Batsman"
-          },
-          {
-            "playerId": 1049,
-            "playerName": "Mumbai Player 11",
-            "role": "Batsman"
-          }
-        ]
-      }
-    ],
-    "innings": [
-      {
-        "teamId": 101,
-        "score": 195,
-        "wickets": 5,
-        "overs": 20,
-        "batting": [
-          {
-            "playerId": 1,
-            "runs": 85,
-            "balls": 50,
-            "fours": 8,
-            "sixes": 4,
-            "strikeRate": 170,
-            "dismissal": "c Kohli b Siraj",
-            "out": true
-          }
-        ],
-        "bowling": [
-          {
-            "playerId": 13,
-            "overs": 4,
-            "maidens": 0,
-            "runs": 35,
-            "wickets": 2,
-            "economy": 8.75,
-            "wides": 1,
-            "noBalls": 0
-          }
-        ]
-      },
-      {
-        "teamId": 104,
-        "score": 183,
-        "wickets": 8,
-        "overs": 20,
-        "batting": [
-          {
-            "playerId": 11,
-            "runs": 65,
-            "balls": 45,
-            "fours": 6,
-            "sixes": 2,
-            "strikeRate": 144.44,
-            "dismissal": "b Bumrah",
-            "out": true
-          }
-        ],
-        "bowling": [
-          {
-            "playerId": 4,
-            "overs": 4,
-            "maidens": 0,
-            "runs": 22,
-            "wickets": 3,
-            "economy": 5.5,
-            "wides": 0,
-            "noBalls": 0
-          }
-        ]
-      }
-    ],
-    "commentary": [
-      {
-        "over": 19.6,
-        "text": "Bumrah to Siraj, OUT! Clean bowled! Mumbai Indians win the match.",
-        "runs": 0,
-        "isWicket": true
-      }
-    ],
-    "rules": {
-      "totalOvers": 20,
-      "ballsPerOver": 6,
-      "inningsPerTeam": 1,
-      "maxWickets": 10
     }
   },
   {
