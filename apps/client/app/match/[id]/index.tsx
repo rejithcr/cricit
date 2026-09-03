@@ -231,12 +231,12 @@ export default function ScorecardScreen() {
 
         return (
           <View key={`inning-${index}`} style={styles.inningContainer}>
-            <TouchableOpacity
-              style={[styles.inningHeader, isEditingScorecard && styles.editableItem]}
-              onPress={isEditingScorecard ? () => setModalConfig({ type: 'total', data: { score: inning.score, wickets: inning.wickets, overs: inning.overs }, inningIndex: index }) : toggleCollapse}
-              activeOpacity={0.7}
-            >
-              <View>
+            <View style={[styles.inningHeader, isEditingScorecard && styles.editableItem]}>
+              <TouchableOpacity
+                style={{ flex: 1 }}
+                onPress={isEditingScorecard ? () => setModalConfig({ type: 'total', data: { score: inning.score, wickets: inning.wickets, overs: inning.overs }, inningIndex: index }) : toggleCollapse}
+                activeOpacity={0.7}
+              >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   {isEditingScorecard && <Edit2 size={14} color={colors.whatsappGreen} />}
                   <Text style={styles.inningTitle}>{teamName}</Text>
@@ -244,15 +244,19 @@ export default function ScorecardScreen() {
                 <Text style={styles.inningScore}>
                   {inning.score}/{inning.wickets} <Text style={styles.inningOvers}>({inning.overs} / {match.rules?.totalOvers || 20} Ov)</Text>
                 </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ padding: 4 }}
+                onPress={toggleCollapse}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 {isCollapsed ? (
                   <ChevronDown size={24} color={colors.onSurface} />
                 ) : (
                   <ChevronUp size={24} color={colors.onSurface} />
                 )}
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
 
             {!isCollapsed && (
               <>
