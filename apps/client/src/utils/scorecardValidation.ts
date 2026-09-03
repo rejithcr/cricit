@@ -80,8 +80,11 @@ const bowlingOversMatchRule: ValidationRule = (innings) => {
 
 const maxOversPerBowlerRule: ValidationRule = (innings, matchRules) => {
   const errors: string[] = [];
-  const totalOvers = matchRules?.totalOvers || 20;
-  const maxOversPerBowler = Math.ceil(totalOvers / 5);
+  const maxOversPerBowler = matchRules?.maxOversPerBowler;
+  
+  if (maxOversPerBowler === undefined || maxOversPerBowler === null) {
+    return { errors, warnings: [] };
+  }
   
   innings.bowling?.forEach((b: any) => {
     if ((b.overs || 0) > maxOversPerBowler) {
