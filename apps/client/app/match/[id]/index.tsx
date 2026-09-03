@@ -7,40 +7,11 @@ import { io } from 'socket.io-client';
 // NOTE: scoring-engine removed from viewer in MVP — server broadcasts full snapshots.
 // Phase 4: re-introduce applyDeliveryToMatch here for minimal-delta events.
 import { colors, typography } from '../../../src/theme';
-import { AlertCircle, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react-native';
-
-const BatterRow = ({ batter, playerName, isLast }: any) => (
-  <View style={[styles.tableRow, !isLast && styles.borderBottom]}>
-    <View style={styles.playerInfo}>
-      <Text style={[styles.playerName, !batter.out && styles.statBold]}>
-        {playerName}{batter.isStriker ? ' *' : ''}
-      </Text>
-      <Text style={styles.dismissal}>{batter.dismissal}</Text>
-    </View>
-    <View style={styles.statsCols}>
-      <Text style={[styles.statText, styles.statBold, { width: 36, textAlign: 'right' }]}>{batter.runs}</Text>
-      <Text style={[styles.statText, { width: 32, textAlign: 'right' }]}>{batter.balls}</Text>
-      <Text style={[styles.statText, { width: 28, textAlign: 'right' }]}>{batter.fours}</Text>
-      <Text style={[styles.statText, { width: 28, textAlign: 'right' }]}>{batter.sixes}</Text>
-      <Text style={[styles.statText, { width: 45, textAlign: 'right' }]}>{Math.round(batter.strikeRate)}</Text>
-    </View>
-  </View>
-);
-
-const BowlerRow = ({ bowler, playerName, isLast }: any) => (
-  <View style={[styles.tableRow, !isLast && styles.borderBottom]}>
-    <View style={styles.playerInfo}>
-      <Text style={[styles.playerName, bowler.isCurrentBowler && styles.statBold]}>{playerName}</Text>
-    </View>
-    <View style={styles.statsCols}>
-      <Text style={[styles.statText, { width: 36, textAlign: 'right' }]}>{bowler.overs}</Text>
-      <Text style={[styles.statText, { width: 32, textAlign: 'right' }]}>{bowler.maidens}</Text>
-      <Text style={[styles.statText, { width: 32, textAlign: 'right' }]}>{bowler.runs}</Text>
-      <Text style={[styles.statText, styles.statBold, { width: 28, textAlign: 'right' }]}>{bowler.wickets}</Text>
-      <Text style={[styles.statText, { width: 45, textAlign: 'right' }]}>{bowler.economy.toFixed(1)}</Text>
-    </View>
-  </View>
-);
+import { AlertCircle, ChevronDown, ChevronUp, MoreVertical, Edit2 } from 'lucide-react-native';
+import { BatterRow, BowlerRow } from '../../../src/components/scorecard/ScorecardRow';
+import { ScorecardModals } from '../../../src/components/scorecard/ScorecardModals';
+import { validateScorecard } from '../../../src/utils/scorecardValidation';
+import { Alert } from 'react-native';
 
 export default function ScorecardScreen() {
   const { id } = useLocalSearchParams();
@@ -51,6 +22,12 @@ export default function ScorecardScreen() {
   const [tossModalVisible, setTossModalVisible] = useState(false);
   const [tossData, setTossData] = useState({ wonBy: 0, decision: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [isEditingScorecard, setIsEditingScorecard] = useState(false);
+  const [editableInnings, setEditableInnings] = useState<any[]>([]);
+  const [modalConfig, setModalConfig] = useState<{type: 'batter'|'bowler'|'extras'|'total'|null, data: any, inningIndex: number, itemIndex?: number}>({ type: null, data: null, inningIndex: -1 });
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   // Placeholder scorer check – replace with proper auth logic
   const isScorer = true; // TODO: determine if current user is the scorer
   const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.5:3001';
@@ -115,6 +92,44 @@ export default function ScorecardScreen() {
       setTossModalVisible(true);
     } else {
       router.push(`/match/${id}/score`);
+    }
+  };
+
+  const handleEditScorecard = () => {
+    setIsEditingScorecard(true);
+    setEditableInnings(JSON.parse(JSON.stringify(match?.innings || [])));
+    setSettingsMenuVisible(false);
+  };
+
+  const handlePublishScorecard = async () => {
+    let hasErrors = false;
+    let allErrors: string[] = [];
+    editableInnings.forEach((inning, idx) => {
+      const result = validateScorecard(inning, match?.rules);
+      if (!result.isValid) {
+        hasErrors = true;
+        allErrors.push(`Innings ${idx + 1}:\n${result.errors.join('\n')}`);
+      }
+    });
+
+    if (hasErrors) {
+      setValidationErrors(allErrors);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiUrl}/matches/${id}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_scorecard', data: { innings: editableInnings }, scorerId: 'scorer-001' })
+      });
+      if (res.ok) {
+        setIsEditingScorecard(false);
+      } else {
+        setValidationErrors(['Failed to publish scorecard. Server returned an error.']);
+      }
+    } catch (e) {
+      setValidationErrors(['Failed to publish scorecard. Please check your connection.']);
     }
   };
 
@@ -198,7 +213,7 @@ export default function ScorecardScreen() {
         </TouchableOpacity>
       )}
       {/* Innings Scorecards */}
-      {match.innings?.map((inning: any, index: number) => {
+      {(isEditingScorecard ? editableInnings : (match.innings || [])).map((inning: any, index: number) => {
         const teamName = getTeamName(inning.teamId);
         const bowlingTeamId = match.teams.find((t: any) => t.teamId !== inning.teamId)?.teamId;
 
@@ -217,21 +232,26 @@ export default function ScorecardScreen() {
         return (
           <View key={`inning-${index}`} style={styles.inningContainer}>
             <TouchableOpacity
-              style={styles.inningHeader}
-              onPress={toggleCollapse}
+              style={[styles.inningHeader, isEditingScorecard && styles.editableItem]}
+              onPress={isEditingScorecard ? () => setModalConfig({ type: 'total', data: { score: inning.score, wickets: inning.wickets, overs: inning.overs }, inningIndex: index }) : toggleCollapse}
               activeOpacity={0.7}
             >
               <View>
-                <Text style={styles.inningTitle}>{teamName}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  {isEditingScorecard && <Edit2 size={14} color={colors.whatsappGreen} />}
+                  <Text style={styles.inningTitle}>{teamName}</Text>
+                </View>
                 <Text style={styles.inningScore}>
                   {inning.score}/{inning.wickets} <Text style={styles.inningOvers}>({inning.overs} / {match.rules?.totalOvers || 20} Ov)</Text>
                 </Text>
               </View>
-              {isCollapsed ? (
-                <ChevronDown size={24} color={colors.onSurface} />
-              ) : (
-                <ChevronUp size={24} color={colors.onSurface} />
-              )}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {isCollapsed ? (
+                  <ChevronDown size={24} color={colors.onSurface} />
+                ) : (
+                  <ChevronUp size={24} color={colors.onSurface} />
+                )}
+              </View>
             </TouchableOpacity>
 
             {!isCollapsed && (
@@ -254,15 +274,22 @@ export default function ScorecardScreen() {
                       batter={batter}
                       playerName={getPlayerName(inning.teamId, batter.playerId)}
                       isLast={bIdx === inning.batting.length - 1}
+                      onPress={isEditingScorecard ? () => setModalConfig({ type: 'batter', data: batter, inningIndex: index, itemIndex: bIdx }) : undefined}
+                      isEditing={isEditingScorecard}
                     />
                   ))}
                 </View>
 
-                <View style={styles.extrasContainer}>
+                <TouchableOpacity 
+                  style={[styles.extrasContainer, isEditingScorecard && styles.editableItem, { flexDirection: 'row', alignItems: 'center', gap: 6 }]}
+                  disabled={!isEditingScorecard}
+                  onPress={() => setModalConfig({ type: 'extras', data: inning.extras, inningIndex: index })}
+                >
+                  {isEditingScorecard && <Edit2 size={12} color={colors.whatsappGreen} />}
                   <Text style={styles.extrasText}>
                     <Text style={{ fontWeight: 'bold' }}>Extras: {inning.extras.total}</Text> (b {inning.extras.byes}, lb {inning.extras.legByes}, w {inning.extras.wides}, nb {inning.extras.noBalls})
                   </Text>
-                </View>
+                </TouchableOpacity>
 
                 {/* Bowling Section */}
                 <View style={styles.cardGroup}>
@@ -282,6 +309,8 @@ export default function ScorecardScreen() {
                       bowler={bowler}
                       playerName={getPlayerName(bowlingTeamId, bowler.playerId)}
                       isLast={bwIdx === inning.bowling.length - 1}
+                      onPress={isEditingScorecard ? () => setModalConfig({ type: 'bowler', data: bowler, inningIndex: index, itemIndex: bwIdx }) : undefined}
+                      isEditing={isEditingScorecard}
                     />
                   ))}
                 </View>
@@ -311,6 +340,47 @@ export default function ScorecardScreen() {
 
     </ScrollView>
 
+      {isEditingScorecard && (
+        <View style={styles.editOverlay}>
+          <TouchableOpacity style={styles.editCancelBtn} onPress={() => setIsEditingScorecard(false)}>
+            <Text style={styles.editCancelBtnText}>Cancel Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.editPublishBtn} onPress={handlePublishScorecard}>
+            <Text style={styles.editPublishBtnText}>Publish Changes</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <ScorecardModals
+        type={modalConfig.type}
+        data={modalConfig.data}
+        squadMembers={
+          modalConfig.type 
+            ? match?.teams?.find((t: any) => t.teamId === (
+                modalConfig.type === 'batter' || modalConfig.type === 'total' 
+                  ? editableInnings[modalConfig.inningIndex]?.teamId 
+                  : match?.teams?.find((tm: any) => tm.teamId !== editableInnings[modalConfig.inningIndex]?.teamId)?.teamId
+              ))?.players || [] 
+            : []
+        }
+        visible={!!modalConfig.type}
+        onClose={() => setModalConfig({ type: null, data: null, inningIndex: -1 })}
+        onSave={(updatedData) => {
+          const updated = [...editableInnings];
+          const inn = updated[modalConfig.inningIndex];
+          if (modalConfig.type === 'batter') inn.batting[modalConfig.itemIndex!] = updatedData;
+          else if (modalConfig.type === 'bowler') inn.bowling[modalConfig.itemIndex!] = updatedData;
+          else if (modalConfig.type === 'extras') inn.extras = updatedData;
+          else if (modalConfig.type === 'total') {
+            inn.score = updatedData.score;
+            inn.wickets = updatedData.wickets;
+            inn.overs = updatedData.overs;
+          }
+          setEditableInnings(updated);
+          setModalConfig({ type: null, data: null, inningIndex: -1 });
+        }}
+      />
+
       {/* Settings Menu Modal */}
       <SettingsMenu
         visible={settingsMenuVisible}
@@ -318,6 +388,7 @@ export default function ScorecardScreen() {
         isScorer={isScorer}
         matchStatus={match?.status}
         onStartScoring={handleScorePress}
+        onEditScorecard={handleEditScorecard}
       />
 
 
@@ -374,6 +445,33 @@ export default function ScorecardScreen() {
                 disabled={!tossData.wonBy || !tossData.decision || isSubmitting}
               >
                 <Text style={styles.tossBtnTextLight}>{isSubmitting ? 'Starting...' : 'Start Scoring'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Validation Errors Modal */}
+      <Modal visible={validationErrors.length > 0} transparent animationType="fade">
+        <View style={styles.tossOverlay}>
+          <View style={styles.tossContent}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+              <AlertCircle size={24} color={colors.error} style={{ marginRight: 8 }} />
+              <Text style={[styles.tossTitle, { marginBottom: 0 }]}>Validation Failed</Text>
+            </View>
+            <ScrollView style={{ maxHeight: 300, marginBottom: 16 }}>
+              {validationErrors.map((err, idx) => (
+                <Text key={idx} style={{ color: colors.onSurface, marginBottom: 12, lineHeight: 20 }}>
+                  {err}
+                </Text>
+              ))}
+            </ScrollView>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+              <TouchableOpacity
+                style={styles.tossBtnSubmit}
+                onPress={() => setValidationErrors([])}
+              >
+                <Text style={styles.tossBtnTextLight}>Dismiss</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -663,6 +761,43 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   tossBtnTextLight: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  editableItem: {
+    backgroundColor: 'rgba(37, 211, 102, 0.05)',
+  },
+  editOverlay: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: colors.surfaceContainerHighest,
+    borderTopWidth: 1,
+    borderTopColor: colors.divider,
+    justifyContent: 'space-between',
+    paddingBottom: 32, // Safe area
+  },
+  editCancelBtn: {
+    flex: 1,
+    padding: 14,
+    marginRight: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.divider,
+    alignItems: 'center',
+  },
+  editCancelBtnText: {
+    color: colors.onSurface,
+    fontWeight: 'bold',
+  },
+  editPublishBtn: {
+    flex: 1,
+    padding: 14,
+    marginLeft: 8,
+    borderRadius: 8,
+    backgroundColor: colors.whatsappGreen,
+    alignItems: 'center',
+  },
+  editPublishBtnText: {
     color: '#fff',
     fontWeight: 'bold',
   }

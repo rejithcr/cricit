@@ -11,6 +11,7 @@ interface SettingsMenuProps {
   onEndInnings?: () => void;
   onEndMatch?: () => void;
   onResetMatch?: () => void;
+  onEditScorecard?: () => void;
 }
 
 export const SettingsMenu: React.FC<SettingsMenuProps> = ({
@@ -22,6 +23,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
   onEndInnings,
   onEndMatch,
   onResetMatch,
+  onEditScorecard,
 }) => (
   <Modal visible={visible} transparent animationType="fade">
     <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={onClose}>
@@ -29,6 +31,11 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
         {isScorer && (matchStatus === 'scheduled' || matchStatus === 'live') && onStartScoring && (
           <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onStartScoring(); }}>
             <Text style={styles.menuItemText}>{matchStatus === 'live' ? 'Resume Scoring' : 'Start Scoring'}</Text>
+          </TouchableOpacity>
+        )}
+        {isScorer && (matchStatus === 'live' || matchStatus === 'completed') && onEditScorecard && (
+          <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onEditScorecard(); }}>
+            <Text style={styles.menuItemText}>Edit Scorecard</Text>
           </TouchableOpacity>
         )}
         {onEndInnings && (

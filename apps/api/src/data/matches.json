@@ -136,8 +136,14 @@
         "teamId": 202,
         "score": 48,
         "wickets": 0,
-        "overs": 3.5,
-        "complete": false,
+        "overs": 4,
+        "extras": {
+          "byes": 8,
+          "legByes": 3,
+          "wides": 6,
+          "noBalls": 11,
+          "total": 28
+        },
         "batting": [
           {
             "playerId": 212,
@@ -164,7 +170,7 @@
         ],
         "bowling": [
           {
-            "playerId": 208,
+            "playerId": 211,
             "overs": 1,
             "maidens": 0,
             "runs": 18,
@@ -172,7 +178,8 @@
             "economy": 18,
             "wides": 0,
             "noBalls": 0,
-            "isCurrentBowler": false
+            "isCurrentBowler": false,
+            "playerName": "Kuldeep Sen"
           },
           {
             "playerId": 207,
@@ -198,7 +205,7 @@
           },
           {
             "playerId": 202,
-            "overs": 0.5,
+            "overs": 1,
             "maidens": 0,
             "runs": 11,
             "wickets": 0,
@@ -208,14 +215,8 @@
             "isCurrentBowler": true
           }
         ],
-        "extras": {
-          "byes": 8,
-          "legByes": 3,
-          "wides": 6,
-          "noBalls": 11,
-          "total": 28
-        },
-        "fallOfWickets": []
+        "fallOfWickets": [],
+        "complete": false
       }
     ],
     "commentary": [

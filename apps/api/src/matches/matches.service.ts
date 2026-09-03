@@ -234,6 +234,10 @@ export class MatchesService {
       updatedMatch.innings = [];
       updatedMatch.commentary = [];
       this.history.delete(id);
+    } else if (action === 'update_scorecard') {
+      // data: { innings: any[] }
+      updatedMatch = JSON.parse(JSON.stringify(currentMatch));
+      updatedMatch.innings = data.innings;
     } else {
       throw new Error('Invalid action');
     }
