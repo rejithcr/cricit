@@ -95,6 +95,36 @@ const maxOversPerBowlerRule: ValidationRule = (innings, matchRules) => {
   return { errors, warnings: [] };
 };
 
+const noDuplicateBattersRule: ValidationRule = (innings) => {
+  const errors: string[] = [];
+  const seen = new Set<string>();
+
+  innings.batting?.forEach((b: any) => {
+    const id = String(b.playerId);
+    if (seen.has(id)) {
+      errors.push(`Batter (ID: ${b.playerId}) appears more than once in the batting lineup.`);
+    }
+    seen.add(id);
+  });
+
+  return { errors, warnings: [] };
+};
+
+const noDuplicateBowlersRule: ValidationRule = (innings) => {
+  const errors: string[] = [];
+  const seen = new Set<string>();
+
+  innings.bowling?.forEach((b: any) => {
+    const id = String(b.playerId);
+    if (seen.has(id)) {
+      errors.push(`Bowler (ID: ${b.playerId}) appears more than once in the bowling lineup.`);
+    }
+    seen.add(id);
+  });
+
+  return { errors, warnings: [] };
+};
+
 const nonNegativeRule: ValidationRule = (innings) => {
   const errors: string[] = [];
   
@@ -123,6 +153,8 @@ const nonNegativeRule: ValidationRule = (innings) => {
 };
 
 const rules: ValidationRule[] = [
+  noDuplicateBattersRule,
+  noDuplicateBowlersRule,
   overallScoreMatchRule,
   extrasMatchRule,
   wicketsMatchRule,

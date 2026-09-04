@@ -11,7 +11,6 @@ import { AlertCircle, ChevronDown, ChevronUp, MoreVertical, Edit2 } from 'lucide
 import { BatterRow, BowlerRow } from '../../../src/components/scorecard/ScorecardRow';
 import { ScorecardModals } from '../../../src/components/scorecard/ScorecardModals';
 import { validateScorecard } from '../../../src/utils/scorecardValidation';
-import { Alert } from 'react-native';
 
 export default function ScorecardScreen() {
   const { id } = useLocalSearchParams();
@@ -274,7 +273,7 @@ export default function ScorecardScreen() {
                   </View>
                   {inning.batting?.map((batter: any, bIdx: number) => (
                     <BatterRow
-                      key={`batter-${batter.playerId}`}
+                      key={`batter-${index}-${bIdx}`}
                       batter={batter}
                       playerName={getPlayerName(inning.teamId, batter.playerId)}
                       isLast={bIdx === inning.batting.length - 1}
@@ -309,7 +308,7 @@ export default function ScorecardScreen() {
                   </View>
                   {inning.bowling?.map((bowler: any, bwIdx: number) => (
                     <BowlerRow
-                      key={`bowler-${bowler.playerId}`}
+                      key={`bowler-${index}-${bwIdx}`}
                       bowler={bowler}
                       playerName={getPlayerName(bowlingTeamId, bowler.playerId)}
                       isLast={bwIdx === inning.bowling.length - 1}
@@ -346,7 +345,7 @@ export default function ScorecardScreen() {
 
       {isEditingScorecard && (
         <View style={styles.editOverlay}>
-          <TouchableOpacity style={styles.editCancelBtn} onPress={() => setIsEditingScorecard(false)}>
+          <TouchableOpacity style={styles.editCancelBtn} onPress={() => { setIsEditingScorecard(false); setEditableInnings([]); setValidationErrors([]); }}>
             <Text style={styles.editCancelBtnText}>Cancel Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.editPublishBtn} onPress={handlePublishScorecard}>
@@ -371,11 +370,15 @@ export default function ScorecardScreen() {
         onClose={() => setModalConfig({ type: null, data: null, inningIndex: -1 })}
         onSave={(updatedData) => {
           const updated = [...editableInnings];
-          const inn = updated[modalConfig.inningIndex];
-          if (modalConfig.type === 'batter') inn.batting[modalConfig.itemIndex!] = updatedData;
-          else if (modalConfig.type === 'bowler') inn.bowling[modalConfig.itemIndex!] = updatedData;
-          else if (modalConfig.type === 'extras') inn.extras = updatedData;
-          else if (modalConfig.type === 'total') {
+          const inn = { ...updated[modalConfig.inningIndex] };
+          updated[modalConfig.inningIndex] = inn;
+          if (modalConfig.type === 'batter') {
+            inn.batting = inn.batting.map((b: any, i: number) => i === modalConfig.itemIndex! ? updatedData : b);
+          } else if (modalConfig.type === 'bowler') {
+            inn.bowling = inn.bowling.map((b: any, i: number) => i === modalConfig.itemIndex! ? updatedData : b);
+          } else if (modalConfig.type === 'extras') {
+            inn.extras = updatedData;
+          } else if (modalConfig.type === 'total') {
             inn.score = updatedData.score;
             inn.wickets = updatedData.wickets;
             inn.overs = updatedData.overs;
